@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 console.log("API_URL:", API_URL); // Debug
 
@@ -45,6 +45,25 @@ export const loginApi = async (email: string, password: string) => {
   });
 
   // Save token
+  if (response.data.token) {
+    localStorage.setItem("authToken", response.data.token);
+  }
+
+  return response.data;
+};
+
+export const signupApi = async (
+  name: string,
+  email: string,
+  password: string,
+) => {
+  const response = await authClient.post(`/api/auth/register`, {
+    name,
+    email,
+    password,
+  });
+
+  // Save token if provided
   if (response.data.token) {
     localStorage.setItem("authToken", response.data.token);
   }
