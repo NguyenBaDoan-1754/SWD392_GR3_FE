@@ -7,6 +7,7 @@ import {
 import { useState } from "react";
 import LoginPage from "./features/auth/page/LoginPage";
 import SignupPage from "./features/auth/page/SignUpPage";
+import NotFoundPage from "./features/404/pages/NotFoundPage";
 import { Toaster } from "./components/ui/sonner";
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             isAuthenticated ? <div>Dashboard</div> : <Navigate to="/login" />
           }
         />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Toaster />
     </Router>
