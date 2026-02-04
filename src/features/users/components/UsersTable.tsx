@@ -1,42 +1,32 @@
-import { Mail, Edit } from "lucide-react";
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: "Admin" | "User";
-  podcastsCreated: number;
-  status: "Active" | "Inactive";
-}
-
-const users: User[] = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    role: "Admin",
-    podcastsCreated: 2,
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    role: "User",
-    podcastsCreated: 1,
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Mike Johnson",
-    email: "mike.johnson@example.com",
-    role: "User",
-    podcastsCreated: 0,
-    status: "Active",
-  },
-];
+import { Mail, Edit, ChevronLeft, ChevronRight } from "lucide-react";
+import { useUsers } from "../hook/useUsers";
 
 export default function UsersTable() {
+  const {
+    users = [],
+    isLoading,
+    error,
+    page,
+    totalPages,
+    setPage,
+  } = useUsers();
+
+  if (isLoading) {
+    return (
+      <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden p-6">
+        <div className="text-center text-slate-400">Loading users...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden p-6">
+        <div className="text-center text-red-400">{error}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
       <div className="px-6 py-4 border-b border-slate-700">
@@ -55,9 +45,6 @@ export default function UsersTable() {
               Role
             </th>
             <th className="px-6 py-4 text-left text-slate-300 font-semibold text-sm">
-              Podcasts Created
-            </th>
-            <th className="px-6 py-4 text-left text-slate-300 font-semibold text-sm">
               Status
             </th>
             <th className="px-6 py-4 text-left text-slate-300 font-semibold text-sm">
@@ -66,49 +53,76 @@ export default function UsersTable() {
           </tr>
         </thead>
         <tbody>
-          {users.map((user) => (
-            <tr
-              key={user.id}
-              className="border-b border-slate-700 hover:bg-slate-700 transition-colors"
-            >
-              <td className="px-6 py-4 text-white font-semibold text-sm">
-                {user.name}
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex items-center gap-2 text-slate-300 text-sm">
-                  <Mail className="w-4 h-4" />
-                  {user.email}
-                </div>
-              </td>
-              <td className="px-6 py-4">
-                <span
-                  className={`px-3 py-1 rounded text-sm font-semibold ${
-                    user.role === "Admin"
-                      ? "bg-blue-900 text-blue-300"
-                      : "bg-slate-700 text-slate-300"
-                  }`}
-                >
-                  {user.role}
-                </span>
-              </td>
-              <td className="px-6 py-4 text-white text-sm">
-                {user.podcastsCreated}
-              </td>
-              <td className="px-6 py-4">
-                <span className="bg-green-900 text-green-300 px-3 py-1 rounded text-sm font-semibold">
-                  {user.status}
-                </span>
-              </td>
-              <td className="px-6 py-4">
-                <button className="flex items-center gap-2 text-slate-300 hover:text-white px-3 py-2 rounded transition-colors font-medium text-sm">
-                  <Edit className="w-4 h-4" />
-                  Edit
-                </button>
+          {users.length === 0 ? (
+            <tr>
+              <td colSpan={5} className="px-6 py-4 text-center text-slate-400">
+                No users found
               </td>
             </tr>
-          ))}
+          ) : (
+            users.map((user) => (
+              <tr
+                key={user.id}
+                className="border-b border-slate-700 hover:bg-slate-700 transition-colors"
+              >
+                <td className="px-6 py-4 text-white font-semibold text-sm">
+                  {user.name}
+                </td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2 text-slate-300 text-sm">
+                    <Mail className="w-4 h-4" />
+                    {user.email}
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <span
+                    className={`px-3 py-1 rounded text-sm font-semibold ${
+                      user.role.toUpperCase() === "ADMIN"
+                        ? "bg-blue-900 text-blue-300"
+                        : "bg-slate-700 text-slate-300"
+                    }`}
+                  >
+                    {user.role}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <span className="bg-green-900 text-green-300 px-3 py-1 rounded text-sm font-semibold">
+                    {user.status || "Active"}
+                  </span>
+                </td>
+                <td className="px-6 py-4">
+                  <button className="text-blue-400 hover:text-blue-300 transition-colors">
+                    <Edit className="w-4 h-4" />
+                  </button>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
+
+      {/* Pagination */}
+      <div className="px-6 py-4 border-t border-slate-700 flex items-center justify-between bg-slate-700">
+        <div className="text-slate-300 text-sm">
+          Page {page + 1} of {totalPages}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setPage(Math.max(0, page - 1))}
+            disabled={page === 0}
+            className="p-2 hover:bg-slate-600 rounded disabled:opacity-50 disabled:cursor-not-allowed text-slate-300"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+            disabled={page >= totalPages - 1}
+            className="p-2 hover:bg-slate-600 rounded disabled:opacity-50 disabled:cursor-not-allowed text-slate-300"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

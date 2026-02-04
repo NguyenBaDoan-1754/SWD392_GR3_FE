@@ -18,9 +18,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   element,
   requiredRoles,
 }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const [userRole, setUserRole] = useState<string | null>(null);
-  const [roleLoading, setRoleLoading] = useState(true);
+  const [, setRoleLoading] = useState(true);
 
   useEffect(() => {
     // Only fetch role if we need to check permissions

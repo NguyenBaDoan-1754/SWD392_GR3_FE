@@ -1,20 +1,27 @@
 import { Plus } from "lucide-react";
 import UserStatsCard from "./UserStatsCard";
 import UsersTable from "./UsersTable";
+import { useUsers } from "../hook/useUsers";
 
 export default function UsersContent() {
+  const { totalElements, users = [] } = useUsers();
+
+  const adminCount = (users || []).filter(
+    (u) => u.role.toUpperCase() === "ADMIN",
+  ).length;
+
   const stats = [
     {
       title: "Total Users",
-      value: "3",
+      value: totalElements.toString(),
     },
     {
       title: "Active Users",
-      value: "3",
+      value: (users || []).length.toString(),
     },
     {
       title: "Admin Users",
-      value: "1",
+      value: adminCount.toString(),
     },
   ];
 
