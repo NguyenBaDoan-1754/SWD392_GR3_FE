@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { loginApi } from "@/api/auth.api";
+import { setToken } from "@/lib/token";
 import { toast } from "sonner";
 
 export function useLogin() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -15,9 +18,19 @@ export function useLogin() {
 
     try {
       const data = await loginApi(email, password);
+
+      // Save token
+      if (data.token) {
+        setToken(data.token);
+      }
+
       toast.success("Login successful! Redirecting...");
-      console.log("Login success:", data);
-      // TODO: Store token and redirect
+
+      // Navigate to dashboard after a short delay
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 500);
+
       return data;
     } catch (err: any) {
       const errorMessage = err.response?.data?.message || "Login failed";

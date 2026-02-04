@@ -4,7 +4,6 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
-import { useState } from "react";
 import LoginPage from "./features/auth/page/LoginPage";
 import SignupPage from "./features/auth/page/SignUpPage";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
@@ -14,9 +13,18 @@ import PodcastScriptsPage from "./features/podcast/pages/PodcastScriptsPage";
 import UsersPage from "./features/users/pages/UsersPage";
 import NotFoundPage from "./features/404/pages/NotFoundPage";
 import { Toaster } from "./components/ui/sonner";
+import { useAuth } from "./features/auth/hook/useAuth";
 
 function App() {
-  const [isAuthenticated] = useState(true);
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-950">
+        <div className="text-slate-400">Loading...</div>
+      </div>
+    );
+  }
 
   return (
     <Router>
