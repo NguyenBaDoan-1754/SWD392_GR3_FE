@@ -5,15 +5,21 @@ import {
   Radio,
   Users,
   Settings,
+  LogOut,
+  User,
+  ChevronDown,
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUserProfile } from "../hook/useUserProfile";
 import { useAuth } from "../../auth/hook/useAuth";
+import { useState } from "react";
 
 export default function Sidebar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { userProfile, isLoading } = useUserProfile();
-  const { user: tokenUser } = useAuth();
+  const { user: tokenUser, logout } = useAuth();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   const menuItems = [
     { icon: BarChart3, label: "Dashboard", href: "/dashboard" },
@@ -68,26 +74,59 @@ export default function Sidebar() {
         {isLoading ? (
           <div className="text-slate-400 text-xs">Loading...</div>
         ) : userProfile ? (
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-              {userProfile.name.charAt(0).toUpperCase()}
-            </div>
-            <div className="flex-1">
-              <p className="text-white text-sm font-medium">
-                {userProfile.name}
-              </p>
-              <p className="text-slate-400 text-xs">{userProfile.email}</p>
-              <p className="text-blue-400 text-xs mt-1">{userProfile.role}</p>
-              {/* Debug: Show token role */}
-              {(tokenUser?.role || tokenUser?.roles) && (
-                <p className="text-yellow-400 text-xs mt-1">
-                  Token:{" "}
-                  {Array.isArray(tokenUser?.roles)
-                    ? tokenUser.roles.join(", ")
-                    : tokenUser?.role}
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileMenu(!showProfileMenu)}
+              className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800 transition-colors"
+            >
+              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                {userProfile.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-white text-sm font-medium">
+                  {userProfile.name}
                 </p>
-              )}
-            </div>
+                <p className="text-slate-400 text-xs">{userProfile.email}</p>
+              </div>
+              <ChevronDown
+                className={`w-4 h-4 text-slate-400 transition-transform ${showProfileMenu ? "transform rotate-180" : ""}`}
+              />
+            </button>
+
+            {/* Dropdown Menu */}
+            {showProfileMenu && (
+              <div className="absolute bottom-full left-0 right-0 mb-2 bg-slate-800 border border-slate-700 rounded-lg shadow-lg overflow-hidden z-10">
+                <Link
+                  to="/profile"
+                  onClick={() => setShowProfileMenu(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
+                >
+                  <User className="w-4 h-4" />
+                  <span>Profile</span>
+                </Link>
+                <button
+                  onClick={() => {
+                    logout();
+                    navigate("/login");
+                    setShowProfileMenu(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-t border-slate-700"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
+
+            {/* Debug info */}
+            {(tokenUser?.role || tokenUser?.roles) && (
+              <p className="text-yellow-400 text-xs mt-2">
+                Token:{" "}
+                {Array.isArray(tokenUser?.roles)
+                  ? tokenUser.roles.join(", ")
+                  : tokenUser?.role}
+              </p>
+            )}
           </div>
         ) : (
           <div className="text-slate-400 text-xs">Error loading profile</div>
