@@ -14,9 +14,10 @@ import UsersPage from "./features/users/pages/UsersPage";
 import NotFoundPage from "./features/404/pages/NotFoundPage";
 import { Toaster } from "./components/ui/sonner";
 import { useAuth } from "./features/auth/hook/useAuth";
+import { ProtectedRoute } from "./features/auth/components/ProtectedRoute";
 
 function App() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isLoading } = useAuth();
 
   if (isLoading) {
     return (
@@ -31,44 +32,55 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+
+        {/* Routes accessible by all authenticated users */}
+
+        {/* Routes accessible only by admin users */}
         <Route
           path="/dashboard"
           element={
-            isAuthenticated ? <DashboardPage /> : <Navigate to="/login" />
+            <ProtectedRoute
+              element={<DashboardPage />}
+              requiredRoles={["ADMIN"]}
+            />
           }
         />
         <Route
           path="/articles"
           element={
-            isAuthenticated ? <ArticlesPage /> : <Navigate to="/login" />
+            <ProtectedRoute
+              element={<ArticlesPage />}
+              requiredRoles={["ADMIN"]}
+            />
           }
         />
         <Route
           path="/stock-management"
           element={
-            isAuthenticated ? <StockManagementPage /> : <Navigate to="/login" />
+            <ProtectedRoute
+              element={<StockManagementPage />}
+              requiredRoles={["ADMIN"]}
+            />
           }
         />
         <Route
           path="/podcast-scripts"
           element={
-            isAuthenticated ? <PodcastScriptsPage /> : <Navigate to="/login" />
+            <ProtectedRoute
+              element={<PodcastScriptsPage />}
+              requiredRoles={["ADMIN"]}
+            />
           }
         />
         <Route
           path="/users"
-          element={isAuthenticated ? <UsersPage /> : <Navigate to="/login" />}
-        />
-        <Route
-          path="/"
           element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" />
-            ) : (
-              <Navigate to="/login" />
-            )
+            <ProtectedRoute element={<UsersPage />} requiredRoles={["ADMIN"]} />
           }
         />
+
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Toaster />

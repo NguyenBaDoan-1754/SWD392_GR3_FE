@@ -7,9 +7,13 @@ import {
   Settings,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { useUserProfile } from "../hook/useUserProfile";
+import { useAuth } from "../../auth/hook/useAuth";
 
 export default function Sidebar() {
   const location = useLocation();
+  const { userProfile, isLoading } = useUserProfile();
+  const { user: tokenUser } = useAuth();
 
   const menuItems = [
     { icon: BarChart3, label: "Dashboard", href: "/dashboard" },
@@ -61,15 +65,33 @@ export default function Sidebar() {
 
       {/* User Profile */}
       <div className="p-4 border-t border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-            A
+        {isLoading ? (
+          <div className="text-slate-400 text-xs">Loading...</div>
+        ) : userProfile ? (
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+              {userProfile.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="flex-1">
+              <p className="text-white text-sm font-medium">
+                {userProfile.name}
+              </p>
+              <p className="text-slate-400 text-xs">{userProfile.email}</p>
+              <p className="text-blue-400 text-xs mt-1">{userProfile.role}</p>
+              {/* Debug: Show token role */}
+              {(tokenUser?.role || tokenUser?.roles) && (
+                <p className="text-yellow-400 text-xs mt-1">
+                  Token:{" "}
+                  {Array.isArray(tokenUser?.roles)
+                    ? tokenUser.roles.join(", ")
+                    : tokenUser?.role}
+                </p>
+              )}
+            </div>
           </div>
-          <div className="flex-1">
-            <p className="text-white text-sm font-medium">Admin User</p>
-            <p className="text-slate-400 text-xs">admin@stockcast.ai</p>
-          </div>
-        </div>
+        ) : (
+          <div className="text-slate-400 text-xs">Error loading profile</div>
+        )}
       </div>
     </aside>
   );

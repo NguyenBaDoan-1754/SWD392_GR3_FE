@@ -32,3 +32,10 @@ export const signupApi = async (
 
   return response.data;
 };
+/**
+ * Get current user profile from /api/users/me
+ */
+export const getUserProfileApi = async () => {
+  const response = await apiClient.get("/api/users/me");
+  return response.data.result;
+};
