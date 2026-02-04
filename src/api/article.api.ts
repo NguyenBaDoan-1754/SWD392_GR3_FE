@@ -23,32 +23,12 @@ export interface ArticlesResponse {
   code: number;
   message: string;
   result: {
-    content: RawArticle[];
-    empty: boolean;
-    first: boolean;
-    last: boolean;
-    number: number;
-    numberOfElements: number;
-    pageable: {
-      offset: number;
-      pageNumber: number;
-      pageSize: number;
-      paged: boolean;
-      sort: {
-        empty: boolean;
-        sorted: boolean;
-        unsorted: boolean;
-      };
-      unpaged: boolean;
-    };
+    items: RawArticle[];
+    page: number;
     size: number;
-    sort: {
-      empty: boolean;
-      sorted: boolean;
-      unsorted: boolean;
-    };
     totalElements: number;
     totalPages: number;
+    last: boolean;
   };
 }
 
@@ -92,15 +72,29 @@ export const getArticles = async (
       },
     });
 
+    // Safely access the response data
+    const items = response.data?.result?.items;
+    const result = response.data?.result;
+
+    if (!items || !Array.isArray(items)) {
+      console.warn("Invalid API response format:", response.data);
+      return {
+        articles: [],
+        totalPages: 0,
+        totalElements: 0,
+        currentPage: page,
+      };
+    }
+
     // Transform raw articles to app format
-    const articles = response.data.result.content.map((article, index) =>
+    const articles = items.map((article, index) =>
       transformArticle(article, index),
     );
 
     return {
       articles,
-      totalPages: response.data.result.totalPages,
-      totalElements: response.data.result.totalElements,
+      totalPages: result?.totalPages || 0,
+      totalElements: result?.totalElements || 0,
       currentPage: page,
     };
   } catch (error) {
@@ -139,14 +133,27 @@ export const searchArticles = async (
       },
     );
 
-    const articles = response.data.result.content.map((article, index) =>
+    const items = response.data?.result?.items;
+    const result = response.data?.result;
+
+    if (!items || !Array.isArray(items)) {
+      console.warn("Invalid API response format:", response.data);
+      return {
+        articles: [],
+        totalPages: 0,
+        totalElements: 0,
+        currentPage: page,
+      };
+    }
+
+    const articles = items.map((article, index) =>
       transformArticle(article, index),
     );
 
     return {
       articles,
-      totalPages: response.data.result.totalPages,
-      totalElements: response.data.result.totalElements,
+      totalPages: result?.totalPages || 0,
+      totalElements: result?.totalElements || 0,
       currentPage: page,
     };
   } catch (error) {
