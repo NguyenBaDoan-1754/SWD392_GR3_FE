@@ -1,11 +1,9 @@
-import { FC } from "react";
-
 interface StatsCardProps {
   title: string;
   subtitle: string;
   value: string;
   change: string;
-  icon: FC<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string }>;
   changeColor?: string;
 }
 

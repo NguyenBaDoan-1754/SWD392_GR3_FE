@@ -1,4 +1,4 @@
-import { Play, Clock, Edit2 } from "lucide-react";
+import { Play, Edit2 } from "lucide-react";
 
 export default function PodcastScriptCard() {
   return (

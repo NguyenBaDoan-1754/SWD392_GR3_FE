@@ -1,4 +1,4 @@
-import { Search, Plus } from "lucide-react";
+import { Search } from "lucide-react";
 import PodcastStatsCard from "./PodcastStatsCard";
 import PodcastScriptCard from "./PodcastScriptCard";
 
