@@ -103,10 +103,40 @@ export const getArticles = async (
   }
 };
 
-export const getArticleById = async (id: number): Promise<Article> => {
+export const getArticleById = async (articleUrl: string): Promise<Article> => {
   try {
-    const response = await apiClient.get(`/api/articles/${id}`);
-    return response.data;
+    const response = await apiClient.get(`/api/articles/articleUrl`, {
+      params: {
+        articleUrl,
+      },
+    });
+
+    const result = response.data?.result;
+
+    if (!result) {
+      throw new Error("Invalid response structure");
+    }
+
+    // Format date
+    const date = new Date(result.publishDate);
+    const formattedDate = date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+
+    // Return transformed article with full content
+    return {
+      id: 0,
+      title: result.title,
+      source: result.pageName || "Unknown Source",
+      ticker: "---",
+      date: formattedDate,
+      sentiment: "Neutral",
+      excerpt: result.title.substring(0, 100) + "...",
+      content: result.content,
+      articleUrl: articleUrl,
+    };
   } catch (error) {
     console.error("Error fetching article:", error);
     throw error;
