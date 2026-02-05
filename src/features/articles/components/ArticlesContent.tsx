@@ -1,5 +1,7 @@
+import { useState } from "react";
 import { Search, Filter } from "lucide-react";
 import ArticleCard from "./ArticleCard";
+import ArticleModal from "./ArticleModal";
 import Pagination from "./Pagination";
 import { useArticles } from "../hook/useArticles";
 
@@ -16,6 +18,21 @@ export default function ArticlesContent() {
     setSort,
     setSearchQuery,
   } = useArticles();
+
+  const [selectedArticleUrl, setSelectedArticleUrl] = useState<string | null>(
+    null,
+  );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewDetails = (articleUrl: string) => {
+    setSelectedArticleUrl(articleUrl);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedArticleUrl(null);
+  };
 
   return (
     <main className="flex-1 overflow-auto">
@@ -75,7 +92,11 @@ export default function ArticlesContent() {
           <>
             <div className="space-y-4">
               {articles.map((article) => (
-                <ArticleCard key={article.id} {...article} />
+                <ArticleCard
+                  key={article.id}
+                  {...article}
+                  onViewDetails={handleViewDetails}
+                />
               ))}
             </div>
             {/* Pagination */}
@@ -90,6 +111,15 @@ export default function ArticlesContent() {
           </>
         )}
       </div>
+
+      {/* Article Modal */}
+      {selectedArticleUrl && (
+        <ArticleModal
+          articleUrl={selectedArticleUrl}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
+      )}
     </main>
   );
 }

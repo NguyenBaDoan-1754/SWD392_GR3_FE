@@ -8,6 +8,7 @@ import LoginPage from "./features/auth/page/LoginPage";
 import SignupPage from "./features/auth/page/SignUpPage";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
 import ArticlesPage from "./features/articles/pages/ArticlesPage";
+import ArticleDetailPage from "./features/articles/pages/ArticleDetailPage";
 import StockManagementPage from "./features/stock/pages/StockManagementPage";
 import PodcastScriptsPage from "./features/podcast/pages/PodcastScriptsPage";
 import UsersPage from "./features/users/pages/UsersPage";
@@ -50,6 +51,15 @@ function App() {
           element={
             <ProtectedRoute
               element={<ArticlesPage />}
+              requiredRoles={["ADMIN"]}
+            />
+          }
+        />
+        <Route
+          path="/articles/:articleUrl"
+          element={
+            <ProtectedRoute
+              element={<ArticleDetailPage />}
               requiredRoles={["ADMIN"]}
             />
           }
