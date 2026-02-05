@@ -1,8 +1,7 @@
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_BASE_URL;
-
-console.log(API_URL + "HAHAHAHA")
+const API_URL =
+  import.meta.env.VITE_API_BASE_URL || "https://swd392-gr3-fe.onrender.com/";
 
 /**
  * Axios instance for API requests with auth interceptors
