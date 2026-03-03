@@ -1,4 +1,4 @@
-import Sidebar from "../../dashboard/components/Sidebar";
+import Sidebar from "../../dashboard-admin/components/Sidebar";
 import ArticlesContent from "../components/ArticlesContent";
 
 export default function ArticlesPage() {
