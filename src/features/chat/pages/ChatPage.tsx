@@ -115,7 +115,11 @@ export default function ChatPage() {
 
         {/* Chat Window or Empty State */}
         {messages.length === 0 ? (
-          <EmptyState onExampleClick={handleExampleClick} />
+          <EmptyState
+            onExampleClick={handleExampleClick}
+            isAuthenticated={isAuthenticated}
+            onShowLoginModal={() => setLoginModalOpen(true)}
+          />
         ) : (
           <ChatWindow messages={messages} isLoading={isLoading} />
         )}

@@ -3,9 +3,15 @@ import { motion } from "motion/react";
 
 interface EmptyStateProps {
   onExampleClick?: (example: string) => void;
+  isAuthenticated?: boolean;
+  onShowLoginModal?: () => void;
 }
 
-export default function EmptyState({ onExampleClick }: EmptyStateProps) {
+export default function EmptyState({
+  onExampleClick,
+  isAuthenticated,
+  onShowLoginModal,
+}: EmptyStateProps) {
   const examples = [
     {
       icon: Sparkles,
@@ -53,10 +59,17 @@ export default function EmptyState({ onExampleClick }: EmptyStateProps) {
       <div className="w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-4">
         {examples.map((example, idx) => {
           const Icon = example.icon;
+          const handleClick = () => {
+            if (!isAuthenticated) {
+              onShowLoginModal?.();
+              return;
+            }
+            onExampleClick?.(example.title);
+          };
           return (
             <motion.button
               key={idx}
-              onClick={() => onExampleClick?.(example.title)}
+              onClick={handleClick}
               whileHover={{ scale: 1.02, translateY: -6 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
