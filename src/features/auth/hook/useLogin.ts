@@ -26,9 +26,10 @@ export function useLogin() {
       }
 
       // Step 2: Fetch user profile with role
+      let userProfile: any = null;
       try {
-        const userProfile = await getUserProfileApi();
-        // Store user profile in localStorage if needed
+        userProfile = await getUserProfileApi();
+        // Store user profile in localStorage
         localStorage.setItem("userProfile", JSON.stringify(userProfile));
       } catch (profileErr) {
         // Don't block login if profile fetch fails
@@ -37,7 +38,12 @@ export function useLogin() {
       toast.success("Login successful! Redirecting...");
 
       setTimeout(() => {
-        navigate("/chat");
+        // If user has ADMIN role, go to dashboard, otherwise to chat
+        if (userProfile && userProfile.role === "ADMIN") {
+          navigate("/dashboard");
+        } else {
+          navigate("/chat");
+        }
       }, 500);
 
       return data;
