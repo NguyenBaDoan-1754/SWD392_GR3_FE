@@ -7,6 +7,7 @@ import {
   LogIn,
   LogOut,
   User,
+  Pin,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
@@ -41,6 +42,9 @@ export default function Sidebar({
   onLogout,
 }: SidebarProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [pinnedConversations, setPinnedConversations] = useState<Set<string>>(
+    new Set(),
+  );
   const [localUser, setLocalUser] = useState<{
     email?: string;
     name?: string;
@@ -104,33 +108,114 @@ export default function Sidebar({
             <span>New chat</span>
           </motion.button>
 
-          {/* Conversations */}
-          <div className="flex-1 overflow-y-auto px-3 space-y-2">
+          {/* Conversations with Pin List */}
+          <div className="flex-1 overflow-y-auto px-2">
             {conversations.length > 0 ? (
-              conversations.map((conv) => (
-                <div
-                  key={conv.id}
-                  onMouseEnter={() => setHoveredId(conv.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  className="group p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700 cursor-pointer transition-colors flex items-start justify-between gap-2"
-                  onClick={() => onSelectConversation?.(conv.id)}
-                >
-                  <div className="flex-1 min-w-0">
-                    <p className="text-slate-200 text-sm truncate flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4 flex-shrink-0" />
-                      {conv.title}
+              <div className="space-y-3">
+                {/* Pinned Conversations */}
+                {pinnedConversations.size > 0 && (
+                  <div>
+                    <p className="text-slate-400 font-semibold text-sm px-2 mb-2">
+                      Pinned Conversations
                     </p>
-                    <p className="text-slate-500 text-xs mt-1">
-                      {conv.timestamp.toLocaleDateString()}
-                    </p>
+                    <div className="space-y-2">
+                      {conversations
+                        .filter((conv) => pinnedConversations.has(conv.id))
+                        .map((conv) => (
+                          <motion.div
+                            key={conv.id}
+                            onClick={() => onSelectConversation?.(conv.id)}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            transition={{
+                              type: "spring",
+                              stiffness: 400,
+                              damping: 10,
+                            }}
+                            className="p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700 cursor-pointer transition-colors flex items-start justify-between gap-2"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="text-slate-200 text-sm truncate flex items-center gap-2">
+                                <MessageSquare className="w-4 h-4 flex-shrink-0" />
+                                {conv.title}
+                              </p>
+                              <p className="text-slate-500 text-xs mt-1">
+                                {conv.timestamp.toLocaleDateString()}
+                              </p>
+                            </div>
+                            <motion.button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPinnedConversations((prev) => {
+                                  const next = new Set(prev);
+                                  next.delete(conv.id);
+                                  return next;
+                                });
+                              }}
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="flex items-center justify-center size-8 rounded-full bg-indigo-600 hover:bg-indigo-500 flex-shrink-0 transition-colors"
+                            >
+                              <Pin className="size-4 text-white fill-white" />
+                            </motion.button>
+                          </motion.div>
+                        ))}
+                    </div>
                   </div>
-                  {hoveredId === conv.id && (
-                    <button className="flex-shrink-0 text-slate-400 hover:text-red-500 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                )}
+
+                {/* Chat History */}
+                <div>
+                  {pinnedConversations.size > 0 && (
+                    <p className="text-slate-400 font-semibold text-sm px-2 mb-2">
+                      Chat History
+                    </p>
                   )}
+                  <div className="space-y-2">
+                    {conversations
+                      .filter((conv) => !pinnedConversations.has(conv.id))
+                      .map((conv) => (
+                        <motion.div
+                          key={conv.id}
+                          onClick={() => onSelectConversation?.(conv.id)}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 10,
+                          }}
+                          className="group p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700 cursor-pointer transition-colors flex items-start justify-between gap-2"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <p className="text-slate-200 text-sm truncate flex items-center gap-2">
+                              <MessageSquare className="w-4 h-4 flex-shrink-0" />
+                              {conv.title}
+                            </p>
+                            <p className="text-slate-500 text-xs mt-1">
+                              {conv.timestamp.toLocaleDateString()}
+                            </p>
+                          </div>
+                          <motion.button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPinnedConversations((prev) => {
+                                const next = new Set(prev);
+                                next.add(conv.id);
+                                return next;
+                              });
+                            }}
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex items-center justify-center size-8 rounded-full bg-slate-700 group-hover:bg-indigo-600 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all"
+                          >
+                            <Pin className="size-4 text-white" />
+                          </motion.button>
+                        </motion.div>
+                      ))}
+                  </div>
                 </div>
-              ))
+              </div>
             ) : (
               <p className="text-slate-500 text-sm text-center mt-8">
                 No conversations yet
