@@ -37,7 +37,7 @@ export function useLogin() {
       toast.success("Login successful! Redirecting...");
 
       setTimeout(() => {
-        navigate("/dashboard");
+        navigate("/chat");
       }, 500);
 
       return data;

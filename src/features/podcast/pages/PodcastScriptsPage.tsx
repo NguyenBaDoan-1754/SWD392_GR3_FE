@@ -1,4 +1,4 @@
-import Sidebar from "../../dashboard/components/Sidebar";
+import Sidebar from "../../dashboard-admin/components/Sidebar";
 import PodcastScriptsContent from "../components/PodcastScriptsContent";
 
 export default function PodcastScriptsPage() {
