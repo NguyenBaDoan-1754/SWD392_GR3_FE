@@ -39,9 +39,19 @@ export function SignupForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
-        <CardHeader className="text-center">
-          <CardTitle className="text-xl">Create account</CardTitle>
-          <CardDescription>
+        <CardHeader className="text-center relative pb-2">
+          {/* Glow effect behind card */}
+          <div
+            className="absolute -inset-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            style={{
+              background:
+                "radial-gradient(circle, rgba(99,102,241,0.2), transparent)",
+              filter: "blur(100px)",
+              zIndex: -1,
+            }}
+          />
+          <CardTitle className="mb-2">Create account</CardTitle>
+          <CardDescription className="text-slate-300 text-base">
             Please fill in the details to create a new account
           </CardDescription>
         </CardHeader>
@@ -93,7 +103,18 @@ export function SignupForm({
                     required
                   />
                 </div>
-                {error && <p className="text-sm text-red-500">{error}</p>}
+                {error && (
+                  <div
+                    className="rounded-lg px-4 py-3 border text-red-200 text-sm"
+                    style={{
+                      background: "rgba(127, 29, 29, 0.2)",
+                      backdropFilter: "blur(8px)",
+                      border: "1px solid rgba(239, 68, 68, 0.3)",
+                    }}
+                  >
+                    {error}
+                  </div>
+                )}
               </div>
               <Button
                 type="submit"
@@ -104,11 +125,23 @@ export function SignupForm({
               >
                 {isLoading ? "Creating account..." : "Sign up"}
               </Button>
+              {/* Security indicators */}
+              <div className="flex items-center justify-center gap-4 pt-4 border-t border-[rgba(255,255,255,0.1)] mt-4 text-xs text-slate-400">
+                <div className="flex items-center gap-1">
+                  <span>🔒</span> Secure signup
+                </div>
+                <div className="flex items-center gap-1">
+                  <span>🛡</span> Data protected
+                </div>
+              </div>
             </div>
           </form>
-          <div className="mt-4 text-center text-sm">
+          <div className="mt-4 text-center text-sm text-slate-300">
             Already have an account?{" "}
-            <a href="/login" className="underline underline-offset-4">
+            <a
+              href="/login"
+              className="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors"
+            >
               Login
             </a>
           </div>

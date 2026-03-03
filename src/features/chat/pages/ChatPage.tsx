@@ -7,6 +7,7 @@ import ChatInput from "../components/ChatInput";
 import EmptyState from "../components/EmptyState";
 import Sidebar from "../components/Sidebar";
 import { Settings } from "lucide-react";
+import { motion } from "motion/react";
 
 interface Conversation {
   id: string;
@@ -51,7 +52,13 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen bg-slate-950">
+    <div
+      className="flex h-screen"
+      style={{
+        background:
+          "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
+      }}
+    >
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -87,9 +94,14 @@ export default function ChatPage() {
             <h1 className="text-white text-lg font-semibold">AI STOCK</h1>
           </div>
           {messages.length > 0 && (
-            <button className="text-slate-400 hover:text-white p-2 rounded hover:bg-slate-800 transition-colors">
+            <motion.button
+              whileHover={{ scale: 1.1, rotate: 15 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+              className="text-slate-400 hover:text-white p-2 rounded hover:bg-slate-800 transition-colors"
+            >
               <Settings className="w-5 h-5" />
-            </button>
+            </motion.button>
           )}
         </div>
 
@@ -132,21 +144,27 @@ export default function ChatPage() {
               Vui lòng đăng nhập để sử dụng chat.
             </p>
             <div className="flex gap-2">
-              <button
+              <motion.button
                 onClick={() => {
                   setLoginModalOpen(false);
                   navigate("/login");
                 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg"
               >
                 Đăng nhập
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() => setLoginModalOpen(false)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 className="flex-1 bg-slate-700 hover:bg-slate-600 text-white py-2 rounded-lg"
               >
                 Hủy
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>

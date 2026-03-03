@@ -9,6 +9,7 @@ import {
   User,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { motion } from "motion/react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -80,22 +81,28 @@ export default function Sidebar({
           {/* Header */}
           <div className="p-4 border-b border-slate-800 flex items-center justify-between">
             <h2 className="text-white font-bold text-lg">AI STOCK</h2>
-            <button
+            <motion.button
               onClick={onToggle}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
               className="lg:hidden text-slate-400 hover:text-white"
             >
               <X className="w-5 h-5" />
-            </button>
+            </motion.button>
           </div>
 
           {/* New Chat Button */}
-          <button
+          <motion.button
             onClick={onNewChat}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
             className="m-4 flex items-center justify-center gap-2 w-auto px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
           >
             <Plus className="w-5 h-5" />
             <span>New chat</span>
-          </button>
+          </motion.button>
 
           {/* Conversations */}
           <div className="flex-1 overflow-y-auto px-3 space-y-2">
@@ -158,22 +165,28 @@ export default function Sidebar({
                     </div>
                   ) : null}
                 </div>
-                <button
+                <motion.button
                   onClick={onLogout}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
                   className="w-full text-slate-400 hover:text-red-400 text-sm py-2 hover:bg-slate-800 rounded transition-colors flex items-center justify-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
                   Logout
-                </button>
+                </motion.button>
               </>
             ) : (
-              <button
+              <motion.button
                 onClick={onLogin}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ type: "spring", stiffness: 400, damping: 10 }}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 <LogIn className="w-4 h-4" />
                 Sign in
-              </button>
+              </motion.button>
             )}
           </div>
         </div>
@@ -181,12 +194,15 @@ export default function Sidebar({
 
       {/* Mobile Menu Button */}
       {!isOpen && (
-        <button
+        <motion.button
           onClick={onToggle}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 400, damping: 10 }}
           className="fixed bottom-6 left-6 lg:hidden z-40 bg-slate-800 text-white p-3 rounded-lg hover:bg-slate-700"
         >
           <Menu className="w-6 h-6" />
-        </button>
+        </motion.button>
       )}
     </>
   );
