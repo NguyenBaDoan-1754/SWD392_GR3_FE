@@ -7,10 +7,7 @@ import {
 import LoginPage from "./features/auth/page/LoginPage";
 import SignupPage from "./features/auth/page/SignUpPage";
 import DashboardPage from "./features/dashboard-admin/pages/DashboardPageAdmin";
-import ArticlesPage from "./features/articles/pages/ArticlesPage";
-import ArticleDetailPage from "./features/articles/pages/ArticleDetailPage";
-import StockManagementPage from "./features/stock/pages/StockManagementPage";
-import PodcastScriptsPage from "./features/podcast/pages/PodcastScriptsPage";
+import BackgroundJobPage from "./features/background-jobs/pages/BackgroundJobPage";
 import UsersPage from "./features/users/pages/UsersPage";
 import ChatPage from "./features/chat/pages/ChatPage";
 import NotFoundPage from "./features/404/pages/NotFoundPage";
@@ -48,37 +45,10 @@ function App() {
           }
         />
         <Route
-          path="/articles"
+          path="/background-jobs"
           element={
             <ProtectedRoute
-              element={<ArticlesPage />}
-              requiredRoles={["ADMIN"]}
-            />
-          }
-        />
-        <Route
-          path="/articles/:articleUrl"
-          element={
-            <ProtectedRoute
-              element={<ArticleDetailPage />}
-              requiredRoles={["ADMIN"]}
-            />
-          }
-        />
-        <Route
-          path="/stock-management"
-          element={
-            <ProtectedRoute
-              element={<StockManagementPage />}
-              requiredRoles={["ADMIN"]}
-            />
-          }
-        />
-        <Route
-          path="/podcast-scripts"
-          element={
-            <ProtectedRoute
-              element={<PodcastScriptsPage />}
+              element={<BackgroundJobPage />}
               requiredRoles={["ADMIN"]}
             />
           }
