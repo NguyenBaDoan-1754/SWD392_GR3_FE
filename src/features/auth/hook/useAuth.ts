@@ -10,10 +10,6 @@ interface UseAuthReturn {
   logout: () => void;
 }
 
-/**
- * Custom Hook để quản lý authentication state
- * Tự động kiểm tra và cập nhật khi token thay đổi
- */
 export const useAuth = (): UseAuthReturn => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

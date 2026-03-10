@@ -1,7 +1,18 @@
 import { SignupForm } from "@/features/auth/components/signup-form";
 import { HexagonBackground } from "@/components/animate-ui/components/backgrounds/hexagon";
+import { useState, useEffect } from "react";
 
 export default function SignupPage() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
   return (
     <div
       className="relative w-full min-h-svh flex flex-col items-center justify-center gap-6 p-6 md:p-10 overflow-hidden"
@@ -45,6 +56,15 @@ export default function SignupPage() {
           animation: hexPulse 3s ease-in-out infinite;
         }
       `}</style>
+
+      {/* Cursor-following glow effect */}
+      <div
+        className="pointer-events-none fixed inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 z-[1]"
+        style={{
+          background: `radial-gradient(800px at ${mousePos.x}px ${mousePos.y}px, rgba(99, 102, 241, 0.4) 0%, rgba(99, 102, 241, 0.2) 30%, rgba(99, 102, 241, 0.05) 60%, transparent 85%)`,
+          filter: "blur(120px)",
+        }}
+      />
 
       {/* Hexagon background with dark colors and animation */}
       <div className="absolute inset-0 z-0 hexagon-animate">

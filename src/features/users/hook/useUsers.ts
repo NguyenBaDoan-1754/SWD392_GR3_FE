@@ -34,9 +34,7 @@ interface UseUsersReturn {
   setPageSize: (size: number) => void;
 }
 
-/**
- * Hook để fetch danh sách users với pagination
- */
+
 export const useUsers = (): UseUsersReturn => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);

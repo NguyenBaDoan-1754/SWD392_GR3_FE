@@ -31,8 +31,6 @@ export const useArticles = (): UseArticlesReturn => {
       try {
         setLoading(true);
         const response = await getArticles(page, sort);
-
-        // Extract metadata from response
         const articlesData = Array.isArray(response)
           ? response
           : response?.articles || [];
@@ -45,7 +43,7 @@ export const useArticles = (): UseArticlesReturn => {
         setError(null);
       } catch (err) {
         setError("Failed to load articles");
-        setArticles([]); // Set empty array on error
+        setArticles([]);
         setTotalPages(0);
         setTotalElements(0);
         console.error(err);
