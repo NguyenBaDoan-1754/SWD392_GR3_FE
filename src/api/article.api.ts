@@ -23,12 +23,11 @@ export interface ArticlesResponse {
   code: number;
   message: string;
   result: {
-    items: RawArticle[];
+    content: RawArticle[];
     page: number;
     size: number;
     totalElements: number;
     totalPages: number;
-    last: boolean;
   };
 }
 
@@ -72,7 +71,7 @@ export const getArticles = async (
     });
 
     // Safely access the response data
-    const items = response.data?.result?.items;
+    const items = response.data?.result?.content;
     const result = response.data?.result;
 
     if (!items || !Array.isArray(items)) {

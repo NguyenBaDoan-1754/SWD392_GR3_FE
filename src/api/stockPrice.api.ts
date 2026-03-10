@@ -14,12 +14,11 @@ export interface StockPricesResponse {
   code: number;
   message: string;
   result: {
-    items: StockPrice[];
+    content: StockPrice[];
     page: number;
     size: number;
     totalElements: number;
     totalPages: number;
-    last: boolean;
   };
 }
 
@@ -44,7 +43,7 @@ export const getStockPrices = async (
       },
     });
 
-    const items = response.data?.result?.items;
+    const items = response.data?.result?.content;
     const result = response.data?.result;
 
     if (!items || !Array.isArray(items)) {
