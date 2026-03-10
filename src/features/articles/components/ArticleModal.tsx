@@ -4,13 +4,13 @@ import type { Article } from "../../../api/article.api";
 import { getArticleById } from "../../../api/article.api";
 
 interface ArticleModalProps {
-  articleUrl: string;
+  articleId: string;
   isOpen: boolean;
   onClose: () => void;
 }
 
 export default function ArticleModal({
-  articleUrl,
+  articleId,
   isOpen,
   onClose,
 }: ArticleModalProps) {
@@ -24,7 +24,7 @@ export default function ArticleModal({
     const fetchArticle = async () => {
       try {
         setLoading(true);
-        const data = await getArticleById(articleUrl);
+        const data = await getArticleById(articleId);
         setArticle(data);
         setError(null);
       } catch (err) {
@@ -36,7 +36,7 @@ export default function ArticleModal({
     };
 
     fetchArticle();
-  }, [articleUrl, isOpen]);
+  }, [articleId, isOpen]);
 
   if (!isOpen) return null;
 

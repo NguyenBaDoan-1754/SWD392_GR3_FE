@@ -1,14 +1,14 @@
 import apiClient from "./client";
 
 export interface RawArticle {
-  articleUrl: string;
+  id: string;
   title: string;
-  publishDate: string;
-  pageName: string;
+  publishedDate: string;
+  sourceName: string;
 }
 
 export interface Article {
-  id: number;
+  id: string;
   title: string;
   source: string;
   ticker: string;
@@ -35,8 +35,8 @@ export interface ArticlesResponse {
 /**
  * Transform API raw article to app Article format
  */
-const transformArticle = (raw: RawArticle, index: number): Article => {
-  const date = new Date(raw.publishDate);
+const transformArticle = (raw: RawArticle): Article => {
+  const date = new Date(raw.publishedDate);
   const formattedDate = date.toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
@@ -44,14 +44,13 @@ const transformArticle = (raw: RawArticle, index: number): Article => {
   });
 
   return {
-    id: index,
+    id: raw.id,
     title: raw.title,
-    source: raw.pageName || "Unknown Source",
+    source: raw.sourceName || "Unknown Source",
     ticker: "---", // Not available in API response
     date: formattedDate,
     sentiment: "Neutral", // Default sentiment - could be enhanced with AI analysis
     excerpt: raw.title.substring(0, 100) + "...",
-    articleUrl: raw.articleUrl,
   };
 };
 
@@ -87,9 +86,7 @@ export const getArticles = async (
     }
 
     // Transform raw articles to app format
-    const articles = items.map((article, index) =>
-      transformArticle(article, index),
-    );
+    const articles = items.map((article) => transformArticle(article));
 
     return {
       articles,
@@ -103,22 +100,29 @@ export const getArticles = async (
   }
 };
 
-export const getArticleById = async (articleUrl: string): Promise<Article> => {
+export const getArticleById = async (articleId: string): Promise<Article> => {
   try {
-    const response = await apiClient.get(`/api/articles/articleUrl`, {
-      params: {
-        articleUrl,
-      },
-    });
-
+    const response = await apiClient.get(`/api/articles/${encodeURIComponent(articleId)}`);
     const result = response.data?.result;
 
     if (!result) {
       throw new Error("Invalid response structure");
     }
 
+    // Convert content blocks to plain text
+    const content = Array.isArray(result.content)
+      ? result.content
+          .map((block: any) => {
+            if (!block) return "";
+            if (block.type === "image") return `![image](${block.url})`;
+            if (block.type === "heading") return `## ${block.text}`;
+            return block.text;
+          })
+          .join("\n\n")
+      : undefined;
+
     // Format date
-    const date = new Date(result.publishDate);
+    const date = new Date(result.publishedDate);
     const formattedDate = date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -127,67 +131,17 @@ export const getArticleById = async (articleUrl: string): Promise<Article> => {
 
     // Return transformed article with full content
     return {
-      id: 0,
+      id: result.id,
       title: result.title,
-      source: result.pageName || "Unknown Source",
+      source: result.sourceName || "Unknown Source",
       ticker: "---",
       date: formattedDate,
       sentiment: "Neutral",
       excerpt: result.title.substring(0, 100) + "...",
-      content: result.content,
-      articleUrl: articleUrl,
+      content,
     };
   } catch (error) {
     console.error("Error fetching article:", error);
-    throw error;
-  }
-};
-
-export const searchArticles = async (
-  query: string,
-  page: number = 1,
-): Promise<{
-  articles: Article[];
-  totalPages: number;
-  totalElements: number;
-  currentPage: number;
-}> => {
-  try {
-    const response = await apiClient.get<ArticlesResponse>(
-      `/api/articles/search`,
-      {
-        params: {
-          q: query,
-          page: page - 1,
-        },
-      },
-    );
-
-    const items = response.data?.result?.items;
-    const result = response.data?.result;
-
-    if (!items || !Array.isArray(items)) {
-      console.warn("Invalid API response format:", response.data);
-      return {
-        articles: [],
-        totalPages: 0,
-        totalElements: 0,
-        currentPage: page,
-      };
-    }
-
-    const articles = items.map((article, index) =>
-      transformArticle(article, index),
-    );
-
-    return {
-      articles,
-      totalPages: result?.totalPages || 0,
-      totalElements: result?.totalElements || 0,
-      currentPage: page,
-    };
-  } catch (error) {
-    console.error("Error searching articles:", error);
     throw error;
   }
 };

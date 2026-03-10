@@ -41,7 +41,6 @@ export default function Sidebar({
   onLogin,
   onLogout,
 }: SidebarProps) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [pinnedConversations, setPinnedConversations] = useState<Set<string>>(
     new Set(),
   );

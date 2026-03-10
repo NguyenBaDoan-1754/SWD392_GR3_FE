@@ -19,19 +19,19 @@ export default function ArticlesContent() {
     setSearchQuery,
   } = useArticles();
 
-  const [selectedArticleUrl, setSelectedArticleUrl] = useState<string | null>(
+  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(
     null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const handleViewDetails = (articleUrl: string) => {
-    setSelectedArticleUrl(articleUrl);
+  const handleViewDetails = (articleId: string) => {
+    setSelectedArticleId(articleId);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setSelectedArticleUrl(null);
+    setSelectedArticleId(null);
   };
 
   return (
@@ -113,9 +113,9 @@ export default function ArticlesContent() {
       </div>
 
       {/* Article Modal */}
-      {selectedArticleUrl && (
+      {selectedArticleId && (
         <ArticleModal
-          articleUrl={selectedArticleUrl}
+          articleId={selectedArticleId}
           isOpen={isModalOpen}
           onClose={handleCloseModal}
         />

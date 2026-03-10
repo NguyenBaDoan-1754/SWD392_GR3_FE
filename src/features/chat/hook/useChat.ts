@@ -36,7 +36,7 @@ export const useChat = () => {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        content: response.response || response.data || JSON.stringify(response),
+        content: response.response || JSON.stringify(response),
         timestamp: new Date(),
       };
 

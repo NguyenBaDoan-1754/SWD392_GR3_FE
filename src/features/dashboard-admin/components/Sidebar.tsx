@@ -6,6 +6,8 @@ import {
   User,
   ChevronDown,
   Activity,
+  TrendingUp,
+  FileText,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUserProfile } from "../hook/useUserProfile";
@@ -21,6 +23,8 @@ export default function Sidebar() {
 
   const menuItems = [
     { icon: BarChart3, label: "Dashboard", href: "/dashboard" },
+    { icon: FileText, label: "Articles & Mentions", href: "/articles" },
+    { icon: TrendingUp, label: "Stock Management", href: "/stocks" },
     { icon: Activity, label: "Background Jobs", href: "/background-jobs" },
     { icon: Users, label: "Users", href: "/users" },
     { icon: Settings, label: "Settings", href: "/settings" },

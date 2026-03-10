@@ -1,24 +1,24 @@
 interface ArticleCardProps {
+  id: string;
   title: string;
   source: string;
   ticker: string;
   date: string;
   excerpt: string;
-  articleUrl?: string;
-  onViewDetails?: (articleUrl: string) => void;
+  onViewDetails?: (articleId: string) => void;
 }
 
 export default function ArticleCard({
+  id,
   title,
   source,
   date,
   excerpt,
-  articleUrl,
   onViewDetails,
 }: ArticleCardProps) {
   const handleClick = () => {
-    if (articleUrl && onViewDetails) {
-      onViewDetails(articleUrl);
+    if (id && onViewDetails) {
+      onViewDetails(id);
     }
   };
 

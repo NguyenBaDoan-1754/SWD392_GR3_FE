@@ -5,7 +5,7 @@ import type { Article } from "../../../api/article.api";
 import { getArticleById } from "../../../api/article.api";
 
 export default function ArticleDetailPage() {
-  const { articleUrl } = useParams<{ articleUrl: string }>();
+  const { articleId } = useParams<{ articleId: string }>();
   const navigate = useNavigate();
   const [article, setArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(true);
@@ -13,16 +13,15 @@ export default function ArticleDetailPage() {
 
   useEffect(() => {
     const fetchArticle = async () => {
-      if (!articleUrl) {
-        setError("No article URL provided");
+      if (!articleId) {
+        setError("No article ID provided");
         setLoading(false);
         return;
       }
 
       try {
         setLoading(true);
-        const decodedUrl = decodeURIComponent(articleUrl);
-        const data = await getArticleById(decodedUrl);
+        const data = await getArticleById(articleId);
         setArticle(data);
         setError(null);
       } catch (err) {
@@ -35,7 +34,7 @@ export default function ArticleDetailPage() {
     };
 
     fetchArticle();
-  }, [articleUrl]);
+  }, [articleId]);
 
   return (
     <main className="flex-1 overflow-auto">
