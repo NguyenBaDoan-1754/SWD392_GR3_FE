@@ -85,15 +85,22 @@ export default function ArticleModal({
 
               {/* Content */}
               <div className="text-slate-300 leading-relaxed mb-8 space-y-4">
-                {article.content
-                  ? article.content
-                      .split("\n")
-                      .map((paragraph, index) =>
-                        paragraph.trim() ? (
-                          <p key={index}>{paragraph}</p>
-                        ) : null,
-                      )
-                  : article.excerpt}
+                {article.content ? (
+                  article.content
+                    .split("\n")
+                    .map((paragraph, index) =>
+                      paragraph.trim() ? (
+                        <p key={index}>{paragraph}</p>
+                      ) : null,
+                    )
+                ) : (
+                  <div className="text-slate-400">
+                    <p>{article.excerpt}</p>
+                    <p className="mt-2 text-sm text-yellow-200">
+                      No content available yet. Run the background job in the backend to fetch article details.
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* View Original Link */}
