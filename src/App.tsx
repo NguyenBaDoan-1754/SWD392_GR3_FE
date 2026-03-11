@@ -10,6 +10,9 @@ import DashboardPage from "./features/dashboard-admin/pages/DashboardPageAdmin";
 import BackgroundJobPage from "./features/background-jobs/pages/BackgroundJobPage";
 import UsersPage from "./features/users/pages/UsersPage";
 import ChatPage from "./features/chat/pages/ChatPage";
+import ArticlesPage from "./features/articles/pages/ArticlesPage";
+import ArticleDetailPage from "./features/articles/pages/ArticleDetailPage";
+import StockManagementPage from "./features/stock-management/pages/StockManagementPage";
 import NotFoundPage from "./features/404/pages/NotFoundPage";
 import { Toaster } from "./components/ui/sonner";
 import { useAuth } from "./features/auth/hook/useAuth";
@@ -57,6 +60,33 @@ function App() {
           path="/users"
           element={
             <ProtectedRoute element={<UsersPage />} requiredRoles={["ADMIN"]} />
+          }
+        />
+        <Route
+          path="/articles"
+          element={
+            <ProtectedRoute
+              element={<ArticlesPage />}
+              requiredRoles={["ADMIN"]}
+            />
+          }
+        />
+        <Route
+          path="/articles/:articleId"
+          element={
+            <ProtectedRoute
+              element={<ArticleDetailPage />}
+              requiredRoles={["ADMIN"]}
+            />
+          }
+        />
+        <Route
+          path="/stocks"
+          element={
+            <ProtectedRoute
+              element={<StockManagementPage />}
+              requiredRoles={["ADMIN"]}
+            />
           }
         />
         <Route path="/chat" element={<ChatPage />} />

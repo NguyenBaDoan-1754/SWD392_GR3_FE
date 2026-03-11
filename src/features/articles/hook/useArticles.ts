@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Article } from "../../../api/article.api";
 import { getArticles } from "../../../api/article.api";
 
@@ -17,7 +17,7 @@ interface UseArticlesReturn {
 }
 
 export const useArticles = (): UseArticlesReturn => {
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [allArticles, setAllArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
@@ -31,19 +31,18 @@ export const useArticles = (): UseArticlesReturn => {
       try {
         setLoading(true);
         const response = await getArticles(page, sort);
-        const articlesData = Array.isArray(response)
-          ? response
-          : response?.articles || [];
+
+        const articlesData = response?.articles || [];
         const pages = response?.totalPages || 0;
         const total = response?.totalElements || 0;
 
-        setArticles(articlesData);
+        setAllArticles(articlesData);
         setTotalPages(pages);
         setTotalElements(total);
         setError(null);
       } catch (err) {
         setError("Failed to load articles");
-        setArticles([]);
+        setAllArticles([]);
         setTotalPages(0);
         setTotalElements(0);
         console.error(err);
@@ -54,6 +53,17 @@ export const useArticles = (): UseArticlesReturn => {
 
     fetchArticles();
   }, [page, sort]);
+
+  const articles = useMemo(() => {
+    if (!searchQuery.trim()) return allArticles;
+    const q = searchQuery.toLowerCase();
+    return allArticles.filter(
+      (a) =>
+        a.title.toLowerCase().includes(q) ||
+        a.source.toLowerCase().includes(q) ||
+        a.excerpt.toLowerCase().includes(q),
+    );
+  }, [allArticles, searchQuery]);
 
   return {
     articles,

@@ -22,6 +22,7 @@ interface SidebarProps {
     title: string;
     timestamp: Date;
   }>;
+  activeConversationId?: string | null;
   onSelectConversation?: (id: string) => void;
   isAuthenticated?: boolean;
   user?: { email: string; name?: string } | null;
@@ -35,13 +36,13 @@ export default function Sidebar({
   onNewChat,
   onClearAll,
   conversations,
+  activeConversationId,
   onSelectConversation,
   isAuthenticated = false,
   user = null,
   onLogin,
   onLogout,
 }: SidebarProps) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [pinnedConversations, setPinnedConversations] = useState<Set<string>>(
     new Set(),
   );
@@ -132,7 +133,11 @@ export default function Sidebar({
                               stiffness: 400,
                               damping: 10,
                             }}
-                            className="p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700 cursor-pointer transition-colors flex items-start justify-between gap-2"
+                            className={`p-3 rounded-lg cursor-pointer transition-colors flex items-start justify-between gap-2 ${
+                            activeConversationId === conv.id
+                              ? "bg-indigo-600"
+                              : "bg-slate-800/50 hover:bg-slate-700"
+                          }`}
                           >
                             <div className="flex-1 min-w-0">
                               <p className="text-slate-200 text-sm truncate flex items-center gap-2">
@@ -185,7 +190,11 @@ export default function Sidebar({
                             stiffness: 400,
                             damping: 10,
                           }}
-                          className="group p-3 rounded-lg bg-slate-800/50 hover:bg-slate-700 cursor-pointer transition-colors flex items-start justify-between gap-2"
+                          className={`group p-3 rounded-lg cursor-pointer transition-colors flex items-start justify-between gap-2 ${
+                            activeConversationId === conv.id
+                              ? "bg-indigo-600"
+                              : "bg-slate-800/50 hover:bg-slate-700"
+                          }`}
                         >
                           <div className="flex-1 min-w-0">
                             <p className="text-slate-200 text-sm truncate flex items-center gap-2">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useChat } from "../hook/useChat";
 import { useAuth } from "../../auth/hook/useAuth";
@@ -16,12 +16,16 @@ interface Conversation {
   messages: any[];
 }
 
+const STORAGE_KEY_CONVERSATIONS = "ai_stock_conversations";
+const STORAGE_KEY_ACTIVE_CONVERSATION = "ai_stock_active_conversation";
+
 export default function ChatPage() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  const { messages, isLoading, error, sendMessage, clearMessages } = useChat();
+  const { messages, isLoading, error, sendMessage, clearMessages, setMessages } = useChat();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const handleNewChat = () => {
@@ -29,27 +33,79 @@ export default function ChatPage() {
       setLoginModalOpen(true);
       return;
     }
+
     if (messages.length > 0) {
       // Save current conversation
       const title =
         messages[0]?.content?.substring(0, 30) || "New conversation";
-      setConversations([
-        {
-          id: Date.now().toString(),
-          title,
-          timestamp: new Date(),
-          messages,
-        },
-        ...conversations,
-      ]);
-      clearMessages();
+      const newConversation: Conversation = {
+        id: Date.now().toString(),
+        title,
+        timestamp: new Date(),
+        messages,
+      };
+
+      const updatedConversations = [newConversation, ...conversations];
+      setConversations(updatedConversations);
+      localStorage.setItem(STORAGE_KEY_CONVERSATIONS, JSON.stringify(updatedConversations));
     }
+
+    clearMessages();
+    setActiveConversationId(null);
+    localStorage.removeItem(STORAGE_KEY_ACTIVE_CONVERSATION);
     setSidebarOpen(false);
   };
 
   const handleExampleClick = (example: string) => {
     sendMessage(example);
   };
+
+  const loadConversationsFromStorage = () => {
+    let loadedConversations: Conversation[] = [];
+
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_CONVERSATIONS);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          // Convert timestamp strings to Date objects
+          loadedConversations = parsed.map((conv: any) => ({
+            ...conv,
+            timestamp: conv.timestamp ? new Date(conv.timestamp) : new Date(),
+          }));
+          setConversations(loadedConversations);
+        }
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      const activeId = localStorage.getItem(STORAGE_KEY_ACTIVE_CONVERSATION);
+      if (activeId) {
+        const conv = loadedConversations.find((c) => c.id === activeId);
+        if (conv) {
+          setActiveConversationId(activeId);
+          setMessages(conv.messages);
+        }
+      }
+    } catch {
+      // ignore
+    }
+  };
+
+  useEffect(() => {
+    loadConversationsFromStorage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_CONVERSATIONS, JSON.stringify(conversations));
+    } catch {
+      // ignore
+    }
+  }, [conversations]);
 
   return (
     <div
@@ -67,14 +123,17 @@ export default function ChatPage() {
         onClearAll={() => {
           setConversations([]);
           clearMessages();
+          localStorage.removeItem(STORAGE_KEY_CONVERSATIONS);
+          localStorage.removeItem(STORAGE_KEY_ACTIVE_CONVERSATION);
         }}
         conversations={conversations}
+        activeConversationId={activeConversationId}
         onSelectConversation={(id) => {
-          // Load conversation
           const conv = conversations.find((c) => c.id === id);
           if (conv) {
-            clearMessages();
-            // In a real app, you would restore the messages here
+            setActiveConversationId(id);
+            setMessages(conv.messages);
+            localStorage.setItem(STORAGE_KEY_ACTIVE_CONVERSATION, id);
           }
         }}
         isAuthenticated={isAuthenticated}

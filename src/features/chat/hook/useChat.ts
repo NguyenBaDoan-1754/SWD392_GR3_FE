@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { sendChatMessage } from "../../../api/chat.api";
 
 interface Message {
@@ -8,10 +8,34 @@ interface Message {
   timestamp: Date;
 }
 
+const STORAGE_KEY = "ai_stock_chat_messages";
+
+const loadMessagesFromStorage = (): Message[] => {
+  if (typeof window === "undefined") return [];
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed;
+  } catch {
+    return [];
+  }
+};
+
 export const useChat = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>(() => loadMessagesFromStorage());
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    } catch {
+      // ignore
+    }
+  }, [messages]);
 
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -36,7 +60,7 @@ export const useChat = () => {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        content: response.response || response.data || JSON.stringify(response),
+        content: response.response || JSON.stringify(response),
         timestamp: new Date(),
       };
 
@@ -54,6 +78,11 @@ export const useChat = () => {
   const clearMessages = () => {
     setMessages([]);
     setError(null);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // ignore
+    }
   };
 
   return {
@@ -62,5 +91,6 @@ export const useChat = () => {
     error,
     sendMessage,
     clearMessages,
+    setMessages,
   };
 };
