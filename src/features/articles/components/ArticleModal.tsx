@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { X, Calendar, Building2 } from "lucide-react";
+import { X, Calendar, Building2, User } from "lucide-react";
 import type { Article } from "../../../api/article.api";
 import { getArticleById } from "../../../api/article.api";
 
@@ -81,23 +81,61 @@ export default function ArticleModal({
                   <Calendar className="w-4 h-4" />
                   <span>{article.date}</span>
                 </div>
+                {article.author && (
+                  <div className="flex items-center gap-2 text-slate-400 text-sm">
+                    <User className="w-4 h-4" />
+                    <span>{article.author}</span>
+                  </div>
+                )}
               </div>
 
               {/* Content */}
               <div className="text-slate-300 leading-relaxed mb-8 space-y-4">
-                {article.content ? (
+                {article.contentBlocks && article.contentBlocks.length > 0 ? (
+                  article.contentBlocks.map((block, index) => {
+                    if (block.type === "image") {
+                      return (
+                        <div key={index} className="my-6">
+                          <img
+                            src={block.url}
+                            alt="Article content"
+                            className="max-w-full h-auto rounded-lg border border-slate-600"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = "none";
+                            }}
+                          />
+                        </div>
+                      );
+                    } else if (block.type === "heading") {
+                      return (
+                        <h2
+                          key={index}
+                          className="text-xl font-bold text-white mt-6 mb-3"
+                        >
+                          {block.text}
+                        </h2>
+                      );
+                    } else {
+                      return (
+                        <p key={index} className="text-slate-300">
+                          {block.text}
+                        </p>
+                      );
+                    }
+                  })
+                ) : article.content ? (
                   article.content
                     .split("\n")
                     .map((paragraph, index) =>
-                      paragraph.trim() ? (
-                        <p key={index}>{paragraph}</p>
-                      ) : null,
+                      paragraph.trim() ? <p key={index}>{paragraph}</p> : null,
                     )
                 ) : (
                   <div className="text-slate-400">
                     <p>{article.excerpt}</p>
                     <p className="mt-2 text-sm text-yellow-200">
-                      No content available yet. Run the background job in the backend to fetch article details.
+                      No content available yet. Run the background job in the
+                      backend to fetch article details.
                     </p>
                   </div>
                 )}

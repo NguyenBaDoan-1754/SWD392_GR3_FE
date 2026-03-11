@@ -7,6 +7,12 @@ export interface RawArticle {
   sourceName: string;
 }
 
+export interface ContentBlock {
+  type: "paragraph" | "image" | "heading";
+  text?: string;
+  url?: string;
+}
+
 export interface Article {
   id: string;
   title: string;
@@ -16,7 +22,9 @@ export interface Article {
   sentiment: "Bullish" | "Bearish" | "Neutral";
   excerpt: string;
   content?: string;
+  contentBlocks?: ContentBlock[];
   articleUrl?: string;
+  author?: string;
 }
 
 export interface ArticlesResponse {
@@ -45,7 +53,7 @@ const transformArticle = (raw: RawArticle): Article => {
   return {
     id: raw.id,
     title: raw.title,
-    source: raw.sourceName || "Unknown Source",
+    source: raw.sourceName || "Vnstock",
     ticker: "---", // Not available in API response
     date: formattedDate,
     sentiment: "Neutral", // Default sentiment - could be enhanced with AI analysis
@@ -101,24 +109,29 @@ export const getArticles = async (
 
 export const getArticleById = async (articleId: string): Promise<Article> => {
   try {
-    const response = await apiClient.get(`/api/articles/${encodeURIComponent(articleId)}`);
+    const response = await apiClient.get(
+      `/api/articles/${encodeURIComponent(articleId)}`,
+    );
     const result = response.data?.result;
 
     if (!result) {
       throw new Error("Invalid response structure");
     }
 
+    // Store raw content blocks
+    const contentBlocks: ContentBlock[] = Array.isArray(result.content)
+      ? result.content.filter((block: any) => block)
+      : [];
+
     // Convert content blocks to plain text
-    const content = Array.isArray(result.content)
-      ? result.content
-          .map((block: any) => {
-            if (!block) return "";
-            if (block.type === "image") return `![image](${block.url})`;
-            if (block.type === "heading") return `## ${block.text}`;
-            return block.text;
-          })
-          .join("\n\n")
-      : undefined;
+    const content =
+      contentBlocks
+        .map((block: ContentBlock) => {
+          if (block.type === "image") return `![image](${block.url})`;
+          if (block.type === "heading") return `## ${block.text}`;
+          return block.text;
+        })
+        .join("\n\n") || undefined;
 
     // Format date
     const date = new Date(result.publishedDate);
@@ -132,12 +145,14 @@ export const getArticleById = async (articleId: string): Promise<Article> => {
     return {
       id: result.id,
       title: result.title,
-      source: result.sourceName || "Unknown Source",
+      source: result.sourceName || "Vnstock",
       ticker: "---",
       date: formattedDate,
       sentiment: "Neutral",
       excerpt: result.title.substring(0, 100) + "...",
       content,
+      contentBlocks,
+      author: result.author,
     };
   } catch (error) {
     console.error("Error fetching article:", error);
