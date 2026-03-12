@@ -10,6 +10,7 @@ import DashboardPage from "./features/dashboard-admin/pages/DashboardPageAdmin";
 import BackgroundJobPage from "./features/background-jobs/pages/BackgroundJobPage";
 import UsersPage from "./features/users/pages/UsersPage";
 import ChatPage from "./features/chat/pages/ChatPage";
+import ChatHistoryPage from "./features/chat/pages/ChatHistoryPage";
 import ArticlesPage from "./features/articles/pages/ArticlesPage";
 import ArticleDetailPage from "./features/articles/pages/ArticleDetailPage";
 import StockManagementPage from "./features/stock-management/pages/StockManagementPage";
@@ -36,6 +37,10 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
 
         {/* Routes accessible by all authenticated users */}
+        <Route
+          path="/history"
+          element={<ProtectedRoute element={<ChatHistoryPage />} />}
+        />
 
         {/* Routes accessible only by admin users */}
         <Route
