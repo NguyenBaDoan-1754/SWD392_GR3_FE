@@ -6,6 +6,7 @@ interface Message {
   type: "user" | "assistant";
   content: string;
   timestamp: Date;
+  audioUrl?: string;
 }
 
 interface ChatWindowProps {
@@ -23,6 +24,11 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Chỉ chọn assistant message gần nhất có audio để auto-play
+  const latestAssistantAudioMessageId =
+    [...messages].reverse().find((m) => m.type === "assistant" && !!m.audioUrl)
+      ?.id ?? null;
 
   return (
     <div
@@ -45,8 +51,11 @@ export default function ChatWindow({ messages, isLoading }: ChatWindowProps) {
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
+                messageId={message.id}
                 type={message.type}
                 content={message.content}
+                audioUrl={message.audioUrl}
+                shouldAutoPlay={message.id === latestAssistantAudioMessageId}
               />
             ))}
             {isLoading && (
