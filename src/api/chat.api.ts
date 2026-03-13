@@ -5,7 +5,10 @@ export interface ChatMessage {
 }
 
 export interface ChatResponse {
-  response: string;
+  answer?: string;
+  answerText?: string;
+  audioUrl?: string;
+  response?: string;
 }
 
 /**
@@ -37,7 +40,11 @@ export interface ApiResponse<T> {
 /**
  * Get chat history for current user
  */
-export const getMyAudios = async (): Promise<ApiResponse<MyAudioResponse[]>> => {
-  const response = await apiClient.get<ApiResponse<MyAudioResponse[]>>("/api/chat/my-audios");
+export const getMyAudios = async (): Promise<
+  ApiResponse<MyAudioResponse[]>
+> => {
+  const response = await apiClient.get<ApiResponse<MyAudioResponse[]>>(
+    "/api/chat/my-audios",
+  );
   return response.data;
 };

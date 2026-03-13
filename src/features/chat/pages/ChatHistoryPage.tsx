@@ -5,15 +5,16 @@ import { motion } from "motion/react";
 import { getMyAudios, type MyAudioResponse } from "../../../api/chat.api";
 import { useAuth } from "../../auth/hook/useAuth";
 import Sidebar from "../components/Sidebar";
+import { clearAuthRelatedStorage } from "../../../lib/auth-session";
 
 export default function ChatHistoryPage() {
   const navigate = useNavigate();
   const { isAuthenticated, user, isLoading } = useAuth();
-  
+
   const [history, setHistory] = useState<MyAudioResponse[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // We mock a simple sidebar open state for mobile as in ChatPage
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -58,6 +59,7 @@ export default function ChatHistoryPage() {
         user={user ? { email: user.email, name: user.name } : null}
         onLogin={() => navigate("/login")}
         onLogout={() => {
+          clearAuthRelatedStorage();
           localStorage.removeItem("authToken");
           navigate("/login");
         }}
@@ -75,13 +77,14 @@ export default function ChatHistoryPage() {
           >
             <ArrowLeft className="w-5 h-5" />
           </motion.button>
-          <h1 className="text-white text-xl font-bold">Lịch Sử Trò Chuyện & Âm Thanh</h1>
+          <h1 className="text-white text-xl font-bold">
+            Lịch Sử Trò Chuyện & Âm Thanh
+          </h1>
         </div>
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-4 md:p-8">
           <div className="max-w-7xl mx-auto">
-            
             {isLoadingHistory ? (
               <div className="flex flex-col items-center justify-center h-64 gap-4">
                 <Loader2 className="w-8 h-8 text-indigo-500 animate-spin" />
@@ -94,7 +97,9 @@ export default function ChatHistoryPage() {
             ) : history.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-slate-800 rounded-2xl bg-slate-900/20">
                 <Music className="w-12 h-12 text-slate-600 mb-4" />
-                <p className="text-slate-400 text-lg">Bạn chưa có lịch sử trò chuyện nào.</p>
+                <p className="text-slate-400 text-lg">
+                  Bạn chưa có lịch sử trò chuyện nào.
+                </p>
               </div>
             ) : (
               <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm">
@@ -102,41 +107,59 @@ export default function ChatHistoryPage() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="bg-slate-800/80 text-slate-300 text-sm font-semibold uppercase tracking-wider backdrop-blur-md">
-                        <th className="p-4 w-16 text-center border-b border-slate-700">STT</th>
-                        <th className="p-4 w-1/4 border-b border-slate-700">Câu Hỏi</th>
-                        <th className="p-4 w-2/5 border-b border-slate-700">Câu Trả Lời</th>
-                        <th className="p-4 w-64 border-b border-slate-700 text-center">Âm Thanh</th>
-                        <th className="p-4 w-32 border-b border-slate-700 text-center">Thao Tác</th>
+                        <th className="p-4 w-16 text-center border-b border-slate-700">
+                          STT
+                        </th>
+                        <th className="p-4 w-1/4 border-b border-slate-700">
+                          Câu Hỏi
+                        </th>
+                        <th className="p-4 w-2/5 border-b border-slate-700">
+                          Câu Trả Lời
+                        </th>
+                        <th className="p-4 w-64 border-b border-slate-700 text-center">
+                          Âm Thanh
+                        </th>
+                        <th className="p-4 w-32 border-b border-slate-700 text-center">
+                          Thao Tác
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800">
                       {history.map((item, index) => (
-                        <tr 
-                          key={index} 
+                        <tr
+                          key={index}
                           className="hover:bg-slate-800/40 transition-colors group"
                         >
                           <td className="p-4 text-center text-slate-500 font-medium">
                             {index + 1}
                           </td>
                           <td className="p-4">
-                            <div className="text-slate-200 line-clamp-3 group-hover:line-clamp-none transition-all duration-300" title={item.myQuestion}>
+                            <div
+                              className="text-slate-200 line-clamp-3 group-hover:line-clamp-none transition-all duration-300"
+                              title={item.myQuestion}
+                            >
                               {item.myQuestion || "N/A"}
                             </div>
                           </td>
                           <td className="p-4">
-                            <div className="text-slate-400 text-sm line-clamp-3 group-hover:line-clamp-none transition-all duration-300" title={item.ChatAnswer}>
+                            <div
+                              className="text-slate-400 text-sm line-clamp-3 group-hover:line-clamp-none transition-all duration-300"
+                              title={item.ChatAnswer}
+                            >
                               {item.ChatAnswer || "N/A"}
                             </div>
                           </td>
                           <td className="p-4 text-center">
                             {item.audioUrl ? (
-                              <audio 
-                                controls 
-                                className="w-full h-10 rounded-full bg-slate-800 [&::-webkit-media-controls-enclosure]:bg-slate-800 [&::-webkit-media-controls-enclosure]:border [&::-webkit-media-controls-enclosure]:border-slate-700" 
-                                src={item.audioUrl} 
+                              <audio
+                                controls
+                                className="w-full h-10 rounded-full bg-slate-800 [&::-webkit-media-controls-enclosure]:bg-slate-800 [&::-webkit-media-controls-enclosure]:border [&::-webkit-media-controls-enclosure]:border-slate-700"
+                                src={item.audioUrl}
                               />
                             ) : (
-                              <span className="text-slate-600 italic text-sm">Không có âm thanh</span>
+                              <span className="text-slate-600 italic text-sm">
+                                Không có âm thanh
+                              </span>
                             )}
                           </td>
                           <td className="p-4 text-center">

@@ -6,6 +6,7 @@ interface Message {
   type: "user" | "assistant";
   content: string;
   timestamp: Date;
+  audioUrl?: string;
 }
 
 const STORAGE_KEY = "ai_stock_chat_messages";
@@ -25,7 +26,9 @@ const loadMessagesFromStorage = (): Message[] => {
 };
 
 export const useChat = () => {
-  const [messages, setMessages] = useState<Message[]>(() => loadMessagesFromStorage());
+  const [messages, setMessages] = useState<Message[]>(() =>
+    loadMessagesFromStorage(),
+  );
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -54,14 +57,19 @@ export const useChat = () => {
 
     try {
       const response = await sendChatMessage({ question: content });
-      console.log("API Response:", response);
 
-      // Add assistant message
+      const assistantText =
+        response.answerText?.trim() ||
+        response.answer?.trim() ||
+        response.response?.trim() ||
+        "Không có phản hồi từ hệ thống.";
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        content: response.response || JSON.stringify(response),
+        content: assistantText,
         timestamp: new Date(),
+        audioUrl: response.audioUrl,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);

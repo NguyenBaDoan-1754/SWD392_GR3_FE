@@ -8,6 +8,7 @@ import EmptyState from "../components/EmptyState";
 import Sidebar from "../components/Sidebar";
 import { Settings } from "lucide-react";
 import { motion } from "motion/react";
+import { clearAuthRelatedStorage } from "../../../lib/auth-session";
 
 interface Conversation {
   id: string;
@@ -22,10 +23,19 @@ const STORAGE_KEY_ACTIVE_CONVERSATION = "ai_stock_active_conversation";
 export default function ChatPage() {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
-  const { messages, isLoading, error, sendMessage, clearMessages, setMessages } = useChat();
+  const {
+    messages,
+    isLoading,
+    error,
+    sendMessage,
+    clearMessages,
+    setMessages,
+  } = useChat();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [activeConversationId, setActiveConversationId] = useState<
+    string | null
+  >(null);
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
   const handleNewChat = () => {
@@ -47,7 +57,10 @@ export default function ChatPage() {
 
       const updatedConversations = [newConversation, ...conversations];
       setConversations(updatedConversations);
-      localStorage.setItem(STORAGE_KEY_CONVERSATIONS, JSON.stringify(updatedConversations));
+      localStorage.setItem(
+        STORAGE_KEY_CONVERSATIONS,
+        JSON.stringify(updatedConversations),
+      );
     }
 
     clearMessages();
@@ -101,7 +114,10 @@ export default function ChatPage() {
 
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY_CONVERSATIONS, JSON.stringify(conversations));
+      localStorage.setItem(
+        STORAGE_KEY_CONVERSATIONS,
+        JSON.stringify(conversations),
+      );
     } catch {
       // ignore
     }
@@ -140,6 +156,7 @@ export default function ChatPage() {
         user={user ? { email: user.email, name: user.name } : null}
         onLogin={() => setLoginModalOpen(true)}
         onLogout={() => {
+          clearAuthRelatedStorage();
           localStorage.removeItem("authToken");
           navigate("/login");
         }}

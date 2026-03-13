@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getToken, isTokenValid, getTokenInfo } from "../../../lib/token";
 import type { DecodedToken } from "../../../lib/token";
+import { clearAuthRelatedStorage } from "../../../lib/auth-session";
 
 interface UseAuthReturn {
   isAuthenticated: boolean;
@@ -55,6 +56,7 @@ export const useAuth = (): UseAuthReturn => {
   }, []);
 
   const logout = () => {
+    clearAuthRelatedStorage();
     localStorage.removeItem("authToken");
     setToken(null);
     setIsAuthenticated(false);

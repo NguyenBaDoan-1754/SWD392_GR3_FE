@@ -1,4 +1,5 @@
 import axios from "axios";
+import { clearAuthRelatedStorage } from "../lib/auth-session";
 
 const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
@@ -39,6 +40,7 @@ apiClient.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Token expired or invalid - clear token and redirect to login
+      clearAuthRelatedStorage();
       localStorage.removeItem("authToken");
       window.location.href = "/login";
     }
