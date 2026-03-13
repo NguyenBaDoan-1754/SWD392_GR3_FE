@@ -21,3 +21,23 @@ export const sendChatMessage = async (
     throw error;
   }
 };
+
+export interface MyAudioResponse {
+  myQuestion: string;
+  ChatAnswer: string;
+  audioUrl: string;
+}
+
+export interface ApiResponse<T> {
+  code: number;
+  message: string;
+  result: T;
+}
+
+/**
+ * Get chat history for current user
+ */
+export const getMyAudios = async (): Promise<ApiResponse<MyAudioResponse[]>> => {
+  const response = await apiClient.get<ApiResponse<MyAudioResponse[]>>("/api/chat/my-audios");
+  return response.data;
+};

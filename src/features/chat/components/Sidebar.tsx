@@ -8,9 +8,11 @@ import {
   LogOut,
   User,
   Pin,
+  History,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -43,6 +45,7 @@ export default function Sidebar({
   onLogin,
   onLogout,
 }: SidebarProps) {
+  const navigate = useNavigate();
   const [pinnedConversations, setPinnedConversations] = useState<Set<string>>(
     new Set(),
   );
@@ -134,10 +137,10 @@ export default function Sidebar({
                               damping: 10,
                             }}
                             className={`p-3 rounded-lg cursor-pointer transition-colors flex items-start justify-between gap-2 ${
-                            activeConversationId === conv.id
-                              ? "bg-indigo-600"
-                              : "bg-slate-800/50 hover:bg-slate-700"
-                          }`}
+                              activeConversationId === conv.id
+                                ? "bg-indigo-600"
+                                : "bg-slate-800/50 hover:bg-slate-700"
+                            }`}
                           >
                             <div className="flex-1 min-w-0">
                               <p className="text-slate-200 text-sm truncate flex items-center gap-2">
@@ -242,6 +245,19 @@ export default function Sidebar({
                 <Trash2 className="w-4 h-4" />
                 Clear all
               </button>
+            )}
+
+            {/* History Button */}
+            {isAuthenticated && (
+              <motion.button
+                onClick={() => navigate("/history")}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="w-full text-slate-300 hover:text-white bg-indigo-600/20 hover:bg-indigo-600 border border-indigo-500/30 hover:border-indigo-500 font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <History className="w-4 h-4" />
+                Lịch Sử Của Tôi
+              </motion.button>
             )}
 
             {/* User Info or Login Button */}
