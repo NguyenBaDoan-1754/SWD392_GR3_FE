@@ -1,11 +1,10 @@
-import Sidebar from "../../dashboard-admin/components/Sidebar";
 import ArticlesContent from "../components/ArticlesContent";
+import MainLayout from "../../../components/layout/MainLayout";
 
 export default function ArticlesPage() {
   return (
-    <div className="flex h-screen bg-slate-950">
-      <Sidebar />
+    <MainLayout>
       <ArticlesContent />
-    </div>
+    </MainLayout>
   );
 }

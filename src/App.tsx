@@ -2,7 +2,6 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Navigate,
 } from "react-router-dom";
 import LoginPage from "./features/auth/page/LoginPage";
 import SignupPage from "./features/auth/page/SignUpPage";
@@ -15,6 +14,7 @@ import ArticlesPage from "./features/articles/pages/ArticlesPage";
 import ArticleDetailPage from "./features/articles/pages/ArticleDetailPage";
 import StockManagementPage from "./features/stock-management/pages/StockManagementPage";
 import NotFoundPage from "./features/404/pages/NotFoundPage";
+import HomePage from "./features/home/pages/HomePage";
 import { Toaster } from "./components/ui/sonner";
 import { useAuth } from "./features/auth/hook/useAuth";
 import { ProtectedRoute } from "./features/auth/components/ProtectedRoute";
@@ -72,7 +72,6 @@ function App() {
           element={
             <ProtectedRoute
               element={<ArticlesPage />}
-              requiredRoles={["ADMIN"]}
             />
           }
         />
@@ -81,7 +80,6 @@ function App() {
           element={
             <ProtectedRoute
               element={<ArticleDetailPage />}
-              requiredRoles={["ADMIN"]}
             />
           }
         />
@@ -90,13 +88,12 @@ function App() {
           element={
             <ProtectedRoute
               element={<StockManagementPage />}
-              requiredRoles={["ADMIN"]}
             />
           }
         />
         <Route path="/chat" element={<ChatPage />} />
 
-        <Route path="/" element={<Navigate to="/chat" replace />} />
+        <Route path="/" element={<HomePage />} />
         <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

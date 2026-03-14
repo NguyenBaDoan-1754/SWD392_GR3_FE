@@ -9,6 +9,7 @@ import Sidebar from "../components/Sidebar";
 import { Settings } from "lucide-react";
 import { motion } from "motion/react";
 import { clearAuthRelatedStorage } from "../../../lib/auth-session";
+import MainLayout from "../../../components/layout/MainLayout";
 
 interface Conversation {
   id: string;
@@ -124,8 +125,9 @@ export default function ChatPage() {
   }, [conversations]);
 
   return (
-    <div
-      className="flex h-screen"
+    <MainLayout>
+      <div
+        className="flex h-full"
       style={{
         background:
           "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
@@ -250,5 +252,6 @@ export default function ChatPage() {
         </div>
       )}
     </div>
+    </MainLayout>
   );
 }
