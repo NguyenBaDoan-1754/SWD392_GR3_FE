@@ -1,6 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, Download, Music, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  Music,
+  Loader2,
+  MessageSquare,
+  Bot,
+  Volume2,
+  Eye,
+  X,
+  Sparkles,
+} from "lucide-react";
 import { motion } from "motion/react";
 import { getMyAudios, type MyAudioResponse } from "../../../api/chat.api";
 import { useAuth } from "../../auth/hook/useAuth";
@@ -13,6 +24,18 @@ interface Conversation {
   messages: any[];
 }
 
+function renderBoldMarkdown(text: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+
+  return parts.map((part, index) => {
+    if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
+      return <strong key={`bold-${index}`}>{part.slice(2, -2)}</strong>;
+    }
+
+    return <span key={`text-${index}`}>{part}</span>;
+  });
+}
+
 export default function ChatHistoryPage() {
   const navigate = useNavigate();
   const { isAuthenticated, user, isLoading } = useAuth();
@@ -20,6 +43,10 @@ export default function ChatHistoryPage() {
   const [history, setHistory] = useState<MyAudioResponse[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<{
+    item: MyAudioResponse;
+    index: number;
+  } | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -35,10 +62,14 @@ export default function ChatHistoryPage() {
       const raw = localStorage.getItem(STORAGE_KEY_CONVERSATIONS);
       if (raw) {
         const parsed = JSON.parse(raw);
-        setConversations(Array.isArray(parsed) ? parsed.map((c: any) => ({
-          ...c,
-          timestamp: new Date(c.timestamp)
-        })) : []);
+        setConversations(
+          Array.isArray(parsed)
+            ? parsed.map((c: any) => ({
+                ...c,
+                timestamp: new Date(c.timestamp),
+              }))
+            : [],
+        );
       }
     } catch (e) {
       console.error("Error loading conversations in history page:", e);
@@ -68,6 +99,19 @@ export default function ChatHistoryPage() {
     fetchHistory();
   }, [isAuthenticated, isLoading]);
 
+  useEffect(() => {
+    if (!selectedEntry) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedEntry(null);
+      }
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedEntry]);
+
   return (
     <div
       className="flex h-screen overflow-hidden text-slate-200"
@@ -81,7 +125,11 @@ export default function ChatHistoryPage() {
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onNewChat={() => navigate("/chat")}
         onClearAll={() => {
-          if (window.confirm("Bạn có chắc chắn muốn xóa tất cả lịch sử trò chuyện của tài khoản này?")) {
+          if (
+            window.confirm(
+              "Bạn có chắc chắn muốn xóa tất cả lịch sử trò chuyện của tài khoản này?",
+            )
+          ) {
             setConversations([]);
             localStorage.removeItem(STORAGE_KEY_CONVERSATIONS);
             localStorage.removeItem(STORAGE_KEY_ACTIVE_CONVERSATION);
@@ -133,92 +181,193 @@ export default function ChatHistoryPage() {
                 </p>
               </div>
             ) : (
-              <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-slate-800/80 text-slate-300 text-sm font-semibold uppercase tracking-wider backdrop-blur-md">
-                        <th className="p-4 w-16 text-center border-b border-slate-700">
-                          STT
-                        </th>
-                        <th className="p-4 w-1/4 border-b border-slate-700">
-                          Câu Hỏi
-                        </th>
-                        <th className="p-4 w-2/5 border-b border-slate-700">
-                          Câu Trả Lời
-                        </th>
-                        <th className="p-4 w-64 border-b border-slate-700 text-center">
-                          Âm Thanh
-                        </th>
-                        <th className="p-4 w-32 border-b border-slate-700 text-center">
-                          Thao Tác
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                      {history.map((item, index) => (
-                        <tr
-                          key={index}
-                          className="hover:bg-slate-800/40 transition-colors group"
-                        >
-                          <td className="p-4 text-center text-slate-500 font-medium">
-                            {index + 1}
-                          </td>
-                          <td className="p-4">
-                            <div
-                              className="text-slate-200 line-clamp-3 group-hover:line-clamp-none transition-all duration-300"
-                              title={item.myQuestion}
-                            >
-                              {item.myQuestion || "N/A"}
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <div
-                              className="text-slate-400 text-sm line-clamp-3 group-hover:line-clamp-none transition-all duration-300"
-                              title={item.ChatAnswer}
-                            >
-                              {item.ChatAnswer || "N/A"}
-                            </div>
-                          </td>
-                          <td className="p-4 text-center">
-                            {item.audioUrl ? (
-                              <audio
-                                controls
-                                className="w-full h-10 rounded-full bg-slate-800 [&::-webkit-media-controls-enclosure]:bg-slate-800 [&::-webkit-media-controls-enclosure]:border [&::-webkit-media-controls-enclosure]:border-slate-700"
-                                src={item.audioUrl}
-                              />
-                            ) : (
-                              <span className="text-slate-600 italic text-sm">
-                                Không có âm thanh
-                              </span>
-                            )}
-                          </td>
-                          <td className="p-4 text-center">
-                            {item.audioUrl && (
-                              <motion.a
-                                href={item.audioUrl}
-                                download
-                                target="_blank"
-                                rel="noreferrer"
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                className="inline-flex items-center gap-2 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-indigo-500/30 hover:border-indigo-500"
-                              >
-                                <Download className="w-4 h-4" />
-                                Tải
-                              </motion.a>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+              <>
+                <div className="mb-6">
+                  <div className="rounded-2xl border border-slate-700/70 bg-slate-900/60 p-4 backdrop-blur-sm sm:max-w-xs">
+                    <p className="text-xs uppercase tracking-widest text-slate-400 mb-2">
+                      Tổng lịch sử
+                    </p>
+                    <div className="flex items-center gap-3">
+                      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/20 text-indigo-300">
+                        <MessageSquare className="w-5 h-5" />
+                      </span>
+                      <p className="text-2xl font-bold text-white">
+                        {history.length}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                  {history.map((item, index) => (
+                    <motion.div
+                      key={`${item.myQuestion}-${index}`}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: Math.min(index * 0.04, 0.24) }}
+                      className="relative overflow-hidden rounded-2xl border border-slate-700/70 bg-gradient-to-br from-slate-900/85 via-slate-900/70 to-slate-800/80 p-5 shadow-xl"
+                    >
+                      <div className="absolute right-0 top-0 h-24 w-24 rounded-full bg-indigo-500/10 blur-2xl" />
+
+                      <div className="relative flex items-start justify-between gap-3 mb-4">
+                        <div className="inline-flex items-center gap-2 rounded-full border border-indigo-500/40 bg-indigo-500/10 px-3 py-1 text-xs text-indigo-200">
+                          <Sparkles className="w-3.5 h-3.5" />
+                          Lịch sử #{index + 1}
+                        </div>
+                        <div className="inline-flex items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-500/15 px-3 py-1 text-xs text-cyan-100 shadow-[0_0_20px_rgba(34,211,238,0.15)]">
+                          <span className="relative flex h-2 w-2">
+                            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-300 opacity-75" />
+                            <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-200" />
+                          </span>
+                          <Volume2 className="w-3.5 h-3.5" />
+                          Audio sẵn sàng
+                        </div>
+                      </div>
+
+                      <div className="relative space-y-4">
+                        <div>
+                          <p className="text-xs uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+                            <MessageSquare className="w-3.5 h-3.5" />
+                            Câu hỏi
+                          </p>
+                          <p className="text-slate-100 line-clamp-2 leading-relaxed">
+                            {item.myQuestion || "N/A"}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-wider text-slate-400 mb-1.5 flex items-center gap-1.5">
+                            <Bot className="w-3.5 h-3.5" />
+                            Câu trả lời
+                          </p>
+                          <p className="text-slate-300 text-sm line-clamp-2 leading-relaxed">
+                            {item.ChatAnswer || "N/A"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="relative mt-5 flex items-center justify-between gap-3">
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => setSelectedEntry({ item, index })}
+                          className="inline-flex items-center gap-2 rounded-lg border border-indigo-500/50 bg-indigo-500/20 px-4 py-2 text-sm font-medium text-indigo-100 hover:bg-indigo-500/35 transition-colors"
+                        >
+                          <Eye className="w-4 h-4" />
+                          Xem chi tiết
+                        </motion.button>
+
+                        {item.audioUrl ? (
+                          <motion.a
+                            href={item.audioUrl}
+                            download
+                            target="_blank"
+                            rel="noreferrer"
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-3.5 py-2 text-sm font-medium text-emerald-200 hover:bg-emerald-500/25 transition-colors"
+                          >
+                            <Download className="w-4 h-4" />
+                            Tải âm thanh
+                          </motion.a>
+                        ) : (
+                          <span className="text-xs text-slate-500 italic">
+                            Chưa có audio để tải
+                          </span>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
         </div>
       </div>
+
+      {selectedEntry && (
+        <div
+          className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm p-4 flex items-center justify-center"
+          onClick={() => setSelectedEntry(null)}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.2 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-3xl max-h-[88vh] overflow-hidden rounded-2xl border border-slate-700 bg-slate-900 shadow-2xl"
+          >
+            <div className="flex items-center justify-between gap-4 border-b border-slate-700 px-6 py-4 bg-slate-900/95">
+              <div>
+                <p className="text-xs uppercase tracking-widest text-slate-400">
+                  Chi tiết lịch sử
+                </p>
+                <h2 className="text-lg font-semibold text-white mt-1">
+                  Hội thoại #{selectedEntry.index + 1}
+                </h2>
+              </div>
+              <button
+                onClick={() => setSelectedEntry(null)}
+                className="rounded-full p-2 text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="overflow-y-auto p-6 space-y-6 max-h-[calc(88vh-70px)]">
+              <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+                <p className="text-xs uppercase tracking-wider text-indigo-300 mb-2 flex items-center gap-1.5">
+                  <MessageSquare className="w-3.5 h-3.5" />
+                  Câu hỏi đầy đủ
+                </p>
+                <p className="text-slate-100 whitespace-pre-wrap leading-relaxed">
+                  {selectedEntry.item.myQuestion || "N/A"}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+                <p className="text-xs uppercase tracking-wider text-emerald-300 mb-2 flex items-center gap-1.5">
+                  <Bot className="w-3.5 h-3.5" />
+                  Câu trả lời đầy đủ
+                </p>
+                <p className="text-slate-200 whitespace-pre-wrap leading-relaxed">
+                  {selectedEntry.item.ChatAnswer
+                    ? renderBoldMarkdown(selectedEntry.item.ChatAnswer)
+                    : "N/A"}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-slate-700 bg-slate-800/40 p-4">
+                <p className="text-xs uppercase tracking-wider text-amber-300 mb-3 flex items-center gap-1.5">
+                  <Volume2 className="w-3.5 h-3.5" />
+                  Âm thanh
+                </p>
+
+                {selectedEntry.item.audioUrl ? (
+                  <div className="space-y-4">
+                    <audio
+                      controls
+                      className="w-full h-11 rounded-full bg-slate-800 [&::-webkit-media-controls-enclosure]:bg-slate-800 [&::-webkit-media-controls-enclosure]:border [&::-webkit-media-controls-enclosure]:border-slate-700"
+                      src={selectedEntry.item.audioUrl}
+                    />
+                    <a
+                      href={selectedEntry.item.audioUrl}
+                      download
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-lg border border-indigo-500/40 bg-indigo-500/20 px-4 py-2 text-sm font-medium text-indigo-100 hover:bg-indigo-500/35 transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      Tải âm thanh
+                    </a>
+                  </div>
+                ) : (
+                  <p className="text-slate-500 italic">Không có âm thanh</p>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

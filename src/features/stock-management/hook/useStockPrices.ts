@@ -31,11 +31,31 @@ export const useStockPrices = (): UseStockPricesReturn => {
   const [endDate, setEndDate] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
 
+  const handleSetTickerFilter = (ticker: string) => {
+    setPage(1);
+    setTickerFilter(ticker);
+  };
+
+  const handleSetStartDate = (date: string) => {
+    setPage(1);
+    setStartDate(date);
+  };
+
+  const handleSetEndDate = (date: string) => {
+    setPage(1);
+    setEndDate(date);
+  };
+
   useEffect(() => {
     const fetchPrices = async () => {
       try {
         setLoading(true);
-        const result = await getStockPrices(page, tickerFilter, startDate, endDate);
+        const result = await getStockPrices(
+          page,
+          tickerFilter,
+          startDate,
+          endDate,
+        );
         setAllPrices(result.stockPrices);
         setTotalPages(result.totalPages);
         setTotalElements(result.totalElements);
@@ -74,9 +94,9 @@ export const useStockPrices = (): UseStockPricesReturn => {
     startDate,
     endDate,
     setPage,
-    setTickerFilter,
-    setStartDate,
-    setEndDate,
+    setTickerFilter: handleSetTickerFilter,
+    setStartDate: handleSetStartDate,
+    setEndDate: handleSetEndDate,
     refresh,
   };
 };

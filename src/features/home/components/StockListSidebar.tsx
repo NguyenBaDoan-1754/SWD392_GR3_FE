@@ -171,7 +171,7 @@ export default function StockListSidebar() {
       <button
         onClick={() => {
           if (localStorage.getItem("authToken")) {
-            // Navigate to full market view when existing
+            navigate("/market");
           } else {
             navigate("/login");
           }

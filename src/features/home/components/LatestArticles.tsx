@@ -9,7 +9,9 @@ import ArticleModal from "../../articles/components/ArticleModal";
 export default function LatestArticles() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(null);
+  const [selectedArticleId, setSelectedArticleId] = useState<string | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -38,7 +40,7 @@ export default function LatestArticles() {
         <button
           onClick={() => {
             if (localStorage.getItem("authToken")) {
-              navigate("/articles");
+              navigate("/news");
             } else {
               navigate("/login");
             }
