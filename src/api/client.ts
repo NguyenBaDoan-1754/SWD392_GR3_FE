@@ -39,10 +39,13 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid - clear token and redirect to login
-      clearAuthRelatedStorage();
-      localStorage.removeItem("authToken");
-      window.location.href = "/login";
+      const hasToken = localStorage.getItem("authToken");
+      if (hasToken) {
+        // Token expired or invalid - clear token and redirect to login
+        clearAuthRelatedStorage();
+        localStorage.removeItem("authToken");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },

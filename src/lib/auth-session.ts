@@ -1,7 +1,4 @@
 const LOCAL_STORAGE_KEYS_TO_CLEAR = [
-  "ai_stock_chat_messages",
-  "ai_stock_conversations",
-  "ai_stock_active_conversation",
   "userProfile",
 ];
 

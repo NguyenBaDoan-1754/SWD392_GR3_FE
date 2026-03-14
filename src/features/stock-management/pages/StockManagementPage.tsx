@@ -1,10 +1,11 @@
 import StockManagementContent from "../components/StockManagementContent";
-import MainLayout from "../../../components/layout/MainLayout";
+import Sidebar from "../../dashboard-admin/components/Sidebar";
 
 export default function StockManagementPage() {
   return (
-    <MainLayout>
+    <div className="flex h-screen bg-slate-950">
+      <Sidebar />
       <StockManagementContent />
-    </MainLayout>
+    </div>
   );
 }
