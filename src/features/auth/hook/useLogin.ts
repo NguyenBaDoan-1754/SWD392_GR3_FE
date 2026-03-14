@@ -44,7 +44,7 @@ export function useLogin() {
         if (userProfile && userProfile.role === "ADMIN") {
           navigate("/dashboard");
         } else {
-          navigate("/chat");
+          navigate("/");
         }
       }, 500);
 
