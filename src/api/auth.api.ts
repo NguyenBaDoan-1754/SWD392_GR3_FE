@@ -58,3 +58,10 @@ export const getUsersApi = async (
   });
   return response.data;
 };
+/**
+ * Update current user profile via PUT /api/users/me
+ */
+export const updateUserProfileApi = async (data: { name?: string; email?: string }) => {
+  const response = await apiClient.put("/api/users/me", data);
+  return response.data.result;
+};

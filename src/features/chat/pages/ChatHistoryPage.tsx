@@ -5,7 +5,13 @@ import { motion } from "motion/react";
 import { getMyAudios, type MyAudioResponse } from "../../../api/chat.api";
 import { useAuth } from "../../auth/hook/useAuth";
 import Sidebar from "../components/Sidebar";
-import { clearAuthRelatedStorage } from "../../../lib/auth-session";
+
+interface Conversation {
+  id: string;
+  title: string;
+  timestamp: Date;
+  messages: any[];
+}
 
 export default function ChatHistoryPage() {
   const navigate = useNavigate();
@@ -15,12 +21,33 @@ export default function ChatHistoryPage() {
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // We mock a simple sidebar open state for mobile as in ChatPage
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+
+  const userIdentifier = user?.email || "guest";
+  const STORAGE_KEY_CONVERSATIONS = `chat_convs_${userIdentifier}`;
+  const STORAGE_KEY_ACTIVE_CONVERSATION = `chat_active_${userIdentifier}`;
 
   useEffect(() => {
     if (isLoading) return;
-    if (!isAuthenticated) return; // ProtectedRoute will handle redirect
+
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY_CONVERSATIONS);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        setConversations(Array.isArray(parsed) ? parsed.map((c: any) => ({
+          ...c,
+          timestamp: new Date(c.timestamp)
+        })) : []);
+      }
+    } catch (e) {
+      console.error("Error loading conversations in history page:", e);
+    }
+  }, [userIdentifier, isLoading, STORAGE_KEY_CONVERSATIONS]);
+
+  useEffect(() => {
+    if (isLoading) return;
+    if (!isAuthenticated) return;
 
     const fetchHistory = async () => {
       try {
@@ -49,20 +76,24 @@ export default function ChatHistoryPage() {
           "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)",
       }}
     >
-      {/* Sidebar - Reused from ChatPage */}
       <Sidebar
         isOpen={sidebarOpen}
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onNewChat={() => navigate("/chat")}
-        conversations={[]} // Optional: we don't necessarily need to load local ones here or we can just keep them empty since it's history view
+        onClearAll={() => {
+          if (window.confirm("Bạn có chắc chắn muốn xóa tất cả lịch sử trò chuyện của tài khoản này?")) {
+            setConversations([]);
+            localStorage.removeItem(STORAGE_KEY_CONVERSATIONS);
+            localStorage.removeItem(STORAGE_KEY_ACTIVE_CONVERSATION);
+          }
+        }}
+        conversations={conversations}
+        onSelectConversation={(id) => {
+          localStorage.setItem(STORAGE_KEY_ACTIVE_CONVERSATION, id);
+          navigate("/chat");
+        }}
         isAuthenticated={isAuthenticated}
         user={user ? { email: user.email, name: user.name } : null}
-        onLogin={() => navigate("/login")}
-        onLogout={() => {
-          clearAuthRelatedStorage();
-          localStorage.removeItem("authToken");
-          navigate("/login");
-        }}
       />
 
       {/* Main Content Area */}

@@ -10,7 +10,8 @@ import {
   Newspaper,
 } from "lucide-react";
 import { useAuth } from "../../features/auth/hook/useAuth";
-import { clearAuthRelatedStorage } from "../../lib/auth-session";
+import { useUserProfile } from "../../features/dashboard-admin/hook/useUserProfile";
+
 import { useNavigate } from "react-router-dom";
 
 interface MainLayoutProps {
@@ -19,14 +20,20 @@ interface MainLayoutProps {
 
 export default function MainLayout({ children }: MainLayoutProps) {
   const { pathname } = useLocation();
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user: authUser, logout } = useAuth();
+  const { userProfile } = useUserProfile();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleLogout = () => {
-    clearAuthRelatedStorage();
-    localStorage.removeItem("authToken");
+    logout();
     navigate("/");
+  };
+
+  // Ưu tiên dùng userProfile từ API, nếu chưa có thì dùng authUser từ token
+  const displayUser = userProfile || {
+    name: authUser?.name || "Người dùng",
+    email: authUser?.email || "Profile",
   };
 
   return (
@@ -82,9 +89,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
             {isExpanded && <span>Tin Nhắn</span>}
           </Link>
           <Link
-            to="/stocks"
+            to="/market"
             className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
-              pathname.startsWith("/stocks")
+              pathname.startsWith("/market")
                 ? "bg-slate-800 text-white shadow-sm font-medium"
                 : "text-slate-400 hover:text-white hover:bg-slate-800/50"
             } ${!isExpanded && "justify-center"}`}
@@ -94,9 +101,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
             {isExpanded && <span>Thị Trường</span>}
           </Link>
           <Link
-            to="/articles"
+            to="/news"
             className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
-              pathname.startsWith("/articles")
+              pathname.startsWith("/news")
                 ? "bg-slate-800 text-white shadow-sm font-medium"
                 : "text-slate-400 hover:text-white hover:bg-slate-800/50"
             } ${!isExpanded && "justify-center"}`}
@@ -111,9 +118,10 @@ export default function MainLayout({ children }: MainLayoutProps) {
         <div className="mt-auto px-3 pt-6 border-t border-slate-800/50">
           {isAuthenticated ? (
             <div className="flex flex-col gap-2">
-              <div
-                className={`flex items-center gap-3 py-3 rounded-xl cursor-default ${isExpanded ? "px-3 bg-slate-800/30" : "justify-center"}`}
-                title={user?.name || user?.email || "Profile"}
+              <Link
+                to="/profile"
+                className={`flex items-center gap-3 py-3 rounded-xl hover:bg-slate-800 transition-colors ${isExpanded ? "px-3" : "justify-center"}`}
+                title={displayUser?.name || "Profile"}
               >
                 <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center flex-shrink-0 ring-2 ring-indigo-500/20">
                   <User className="w-4 h-4 text-white" />
@@ -121,14 +129,14 @@ export default function MainLayout({ children }: MainLayoutProps) {
                 {isExpanded && (
                   <div className="flex flex-col min-w-0">
                     <span className="text-sm font-semibold text-slate-200 truncate">
-                      {user?.name || "Người dùng"}
+                      {displayUser?.name}
                     </span>
                     <span className="text-xs text-slate-500 truncate">
-                      {user?.email || "Profile"}
+                      {displayUser?.email}
                     </span>
                   </div>
                 )}
-              </div>
+              </Link>
               <button
                 onClick={handleLogout}
                 className={`flex items-center gap-3 py-3 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all ${isExpanded ? "px-4" : "justify-center"}`}

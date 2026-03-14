@@ -13,8 +13,11 @@ import ChatHistoryPage from "./features/chat/pages/ChatHistoryPage";
 import ArticlesPage from "./features/articles/pages/ArticlesPage";
 import ArticleDetailPage from "./features/articles/pages/ArticleDetailPage";
 import StockManagementPage from "./features/stock-management/pages/StockManagementPage";
+import MarketPage from "./features/stock-management/pages/MarketPage";
+import NewsPage from "./features/articles/pages/NewsPage";
 import NotFoundPage from "./features/404/pages/NotFoundPage";
 import HomePage from "./features/home/pages/HomePage";
+import ProfilePage from "./features/profile/pages/ProfilePage";
 import { Toaster } from "./components/ui/sonner";
 import { useAuth } from "./features/auth/hook/useAuth";
 import { ProtectedRoute } from "./features/auth/components/ProtectedRoute";
@@ -40,6 +43,10 @@ function App() {
         <Route
           path="/history"
           element={<ProtectedRoute element={<ChatHistoryPage />} />}
+        />
+        <Route
+          path="/profile"
+          element={<ProtectedRoute element={<ProfilePage />} />}
         />
 
         {/* Routes accessible only by admin users */}
@@ -72,6 +79,7 @@ function App() {
           element={
             <ProtectedRoute
               element={<ArticlesPage />}
+              requiredRoles={["ADMIN"]}
             />
           }
         />
@@ -80,6 +88,7 @@ function App() {
           element={
             <ProtectedRoute
               element={<ArticleDetailPage />}
+              requiredRoles={["ADMIN"]}
             />
           }
         />
@@ -88,7 +97,21 @@ function App() {
           element={
             <ProtectedRoute
               element={<StockManagementPage />}
+              requiredRoles={["ADMIN"]}
             />
+          }
+        />
+        {/* User-facing routes (no ADMIN required) */}
+        <Route
+          path="/market"
+          element={
+            <ProtectedRoute element={<MarketPage />} />
+          }
+        />
+        <Route
+          path="/news"
+          element={
+            <ProtectedRoute element={<NewsPage />} />
           }
         />
         <Route path="/chat" element={<ChatPage />} />
