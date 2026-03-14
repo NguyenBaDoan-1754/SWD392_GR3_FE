@@ -34,14 +34,20 @@ export const getStockPrices = async (
   currentPage: number;
 }> => {
   try {
-    const response = await apiClient.get<StockPricesResponse>("/api/stock-prices", {
-      params: {
-        page: page - 1,
-        tickerSymbol: tickerSymbol || undefined,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
+    const tickerQuery = tickerSymbol?.trim();
+
+    const response = await apiClient.get<StockPricesResponse>(
+      "/api/stock-prices",
+      {
+        params: {
+          page: page - 1,
+          tickerSymbol: tickerQuery || undefined,
+          ticker: tickerQuery || undefined,
+          startDate: startDate || undefined,
+          endDate: endDate || undefined,
+        },
       },
-    });
+    );
 
     const items = response.data?.result?.content;
     const result = response.data?.result;

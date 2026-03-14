@@ -126,7 +126,7 @@ export default function TrendingStocks() {
         <button
           onClick={() => {
             if (localStorage.getItem("authToken")) {
-              navigate("/stocks");
+              navigate("/market");
             } else {
               navigate("/login");
             }
