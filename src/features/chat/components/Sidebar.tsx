@@ -7,7 +7,7 @@ import {
   Pin,
   History,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +24,6 @@ interface SidebarProps {
   activeConversationId?: string | null;
   onSelectConversation?: (id: string) => void;
   isAuthenticated?: boolean;
-  user?: { email: string; name?: string } | null;
 }
 
 export default function Sidebar({
@@ -36,29 +35,11 @@ export default function Sidebar({
   activeConversationId,
   onSelectConversation,
   isAuthenticated = false,
-  user = null,
 }: SidebarProps) {
   const navigate = useNavigate();
   const [pinnedConversations, setPinnedConversations] = useState<Set<string>>(
     new Set(),
   );
-  const [localUser, setLocalUser] = useState<{
-    email?: string;
-    name?: string;
-  } | null>(null);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("userProfile");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setLocalUser(parsed);
-      }
-    } catch (e) {
-      // ignore parse errors
-    }
-  }, []);
-
 
   return (
     <>
@@ -250,7 +231,6 @@ export default function Sidebar({
                 Lịch Sử Của Tôi
               </motion.button>
             )}
-
           </div>
         </div>
       </div>
