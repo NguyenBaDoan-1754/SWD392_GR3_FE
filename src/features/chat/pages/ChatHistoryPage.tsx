@@ -141,7 +141,6 @@ export default function ChatHistoryPage() {
           navigate("/chat");
         }}
         isAuthenticated={isAuthenticated}
-        user={user ? { email: user.email, name: user.name } : null}
       />
 
       {/* Main Content Area */}
