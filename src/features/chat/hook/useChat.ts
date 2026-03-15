@@ -57,17 +57,11 @@ export const useChat = (initialMessages: Message[] = []) => {
     }
   };
 
-  const clearMessages = () => {
-    setMessages([]);
-    setError(null);
-  };
-
   return {
     messages,
     isLoading,
     error,
     sendMessage,
-    clearMessages,
     setMessages,
   };
 };

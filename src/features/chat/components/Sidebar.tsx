@@ -1,13 +1,12 @@
 import {
   Plus,
-  Menu,
   X,
   MessageSquare,
   Trash2,
   Pin,
   History,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router-dom";
 
@@ -24,7 +23,6 @@ interface SidebarProps {
   activeConversationId?: string | null;
   onSelectConversation?: (id: string) => void;
   isAuthenticated?: boolean;
-  user?: { email: string; name?: string } | null;
 }
 
 export default function Sidebar({
@@ -36,28 +34,11 @@ export default function Sidebar({
   activeConversationId,
   onSelectConversation,
   isAuthenticated = false,
-  user = null,
 }: SidebarProps) {
   const navigate = useNavigate();
   const [pinnedConversations, setPinnedConversations] = useState<Set<string>>(
     new Set(),
   );
-  const [localUser, setLocalUser] = useState<{
-    email?: string;
-    name?: string;
-  } | null>(null);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem("userProfile");
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setLocalUser(parsed);
-      }
-    } catch (e) {
-      // ignore parse errors
-    }
-  }, []);
 
 
   return (
@@ -78,8 +59,7 @@ export default function Sidebar({
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-            <h2 className="text-white font-bold text-lg">AI STOCK</h2>
+          <div className="p-4 border-b border-slate-800 flex items-center justify-end lg:hidden">
             <motion.button
               onClick={onToggle}
               whileHover={{ scale: 1.1 }}
@@ -255,18 +235,6 @@ export default function Sidebar({
         </div>
       </div>
 
-      {/* Mobile Menu Button */}
-      {!isOpen && (
-        <motion.button
-          onClick={onToggle}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          className="fixed bottom-6 left-6 lg:hidden z-40 bg-slate-800 text-white p-3 rounded-lg hover:bg-slate-700"
-        >
-          <Menu className="w-6 h-6" />
-        </motion.button>
-      )}
     </>
   );
 }

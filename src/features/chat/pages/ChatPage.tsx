@@ -6,7 +6,7 @@ import ChatWindow from "../components/ChatWindow";
 import ChatInput from "../components/ChatInput";
 import EmptyState from "../components/EmptyState";
 import Sidebar from "../components/Sidebar";
-import { Settings } from "lucide-react";
+import { Menu } from "lucide-react";
 import { motion } from "motion/react";
 import MainLayout from "../../../components/layout/MainLayout";
 
@@ -25,26 +25,25 @@ export default function ChatPage() {
   const navigate = useNavigate();
   const { isAuthenticated, user, isLoading: authLoading } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  
+
   // Xác định key lưu trữ dựa trên email người dùng (hoặc 'guest')
   const userIdentifier = user?.email || "guest";
   const STORAGE_KEY_CONVERSATIONS = `${CONVS_KEY_PREFIX}${userIdentifier}`;
   const STORAGE_KEY_ACTIVE_CONVERSATION = `${ACTIVE_KEY_PREFIX}${userIdentifier}`;
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [activeConversationId, setActiveConversationId] = useState<
+    string | null
+  >(null);
   const [isInitialLoadDone, setIsInitialLoadDone] = useState(false);
 
-  const activeConversation = conversations.find(c => c.id === activeConversationId);
-  
-  const {
-    messages,
-    isLoading,
-    error,
-    sendMessage,
-    clearMessages,
-    setMessages,
-  } = useChat(activeConversation?.messages || []);
+  const activeConversation = conversations.find(
+    (c) => c.id === activeConversationId,
+  );
+
+  const { messages, isLoading, error, sendMessage, setMessages } = useChat(
+    activeConversation?.messages || [],
+  );
 
   const [loginModalOpen, setLoginModalOpen] = useState(false);
 
@@ -59,16 +58,18 @@ export default function ChatPage() {
       let loadedConvs: Conversation[] = [];
       if (rawConvs) {
         const parsed = JSON.parse(rawConvs);
-        loadedConvs = Array.isArray(parsed) ? parsed.map((c: any) => ({
-          ...c,
-          timestamp: new Date(c.timestamp)
-        })) : [];
+        loadedConvs = Array.isArray(parsed)
+          ? parsed.map((c: any) => ({
+              ...c,
+              timestamp: new Date(c.timestamp),
+            }))
+          : [];
       }
 
       setConversations(loadedConvs);
       setActiveConversationId(activeId);
-      
-      const activeConv = loadedConvs.find(c => c.id === activeId);
+
+      const activeConv = loadedConvs.find((c) => c.id === activeId);
       setMessages(activeConv ? activeConv.messages : []);
       setIsInitialLoadDone(true);
     } catch (e) {
@@ -85,31 +86,32 @@ export default function ChatPage() {
     if (!isInitialLoadDone) return;
 
     if (activeConversationId && messages.length > 0) {
-      setConversations(prev => {
-        const index = prev.findIndex(c => c.id === activeConversationId);
+      setConversations((prev) => {
+        const index = prev.findIndex((c) => c.id === activeConversationId);
         if (index === -1) return prev;
-        
+
         const updated = [...prev];
         const current = updated[index];
-        
+
         let newTitle = current.title;
         if (current.messages.length === 0 && messages.length > 0) {
           const firstMsg = messages[0].content;
-          newTitle = firstMsg.substring(0, 40) + (firstMsg.length > 40 ? "..." : "");
+          newTitle =
+            firstMsg.substring(0, 40) + (firstMsg.length > 40 ? "..." : "");
         }
 
         updated[index] = {
           ...current,
           messages,
           title: newTitle,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
-        
+
         if (index > 0) {
           const [item] = updated.splice(index, 1);
           updated.unshift(item);
         }
-        
+
         return updated;
       });
     } else if (!activeConversationId && messages.length > 0) {
@@ -117,20 +119,30 @@ export default function ChatPage() {
       const firstMsgText = messages[0].content;
       const newConv: Conversation = {
         id: newId,
-        title: firstMsgText.substring(0, 40) + (firstMsgText.length > 40 ? "..." : ""),
+        title:
+          firstMsgText.substring(0, 40) +
+          (firstMsgText.length > 40 ? "..." : ""),
         timestamp: new Date(),
-        messages: messages
+        messages: messages,
       };
-      setConversations(prev => [newConv, ...prev]);
+      setConversations((prev) => [newConv, ...prev]);
       setActiveConversationId(newId);
       localStorage.setItem(STORAGE_KEY_ACTIVE_CONVERSATION, newId);
     }
-  }, [messages, activeConversationId, isInitialLoadDone, STORAGE_KEY_ACTIVE_CONVERSATION]);
+  }, [
+    messages,
+    activeConversationId,
+    isInitialLoadDone,
+    STORAGE_KEY_ACTIVE_CONVERSATION,
+  ]);
 
   // Persistent save
   useEffect(() => {
     if (isInitialLoadDone) {
-      localStorage.setItem(STORAGE_KEY_CONVERSATIONS, JSON.stringify(conversations));
+      localStorage.setItem(
+        STORAGE_KEY_CONVERSATIONS,
+        JSON.stringify(conversations),
+      );
     }
   }, [conversations, isInitialLoadDone, STORAGE_KEY_CONVERSATIONS]);
 
@@ -142,7 +154,7 @@ export default function ChatPage() {
   };
 
   const handleSelectConversation = (id: string) => {
-    const conv = conversations.find(c => c.id === id);
+    const conv = conversations.find((c) => c.id === id);
     if (conv) {
       setActiveConversationId(id);
       setMessages(conv.messages);
@@ -174,7 +186,11 @@ export default function ChatPage() {
           onToggle={() => setSidebarOpen(!sidebarOpen)}
           onNewChat={handleNewChat}
           onClearAll={() => {
-            if (window.confirm("Bạn có chắc chắn muốn xóa tất cả lịch sử trò chuyện của tài khoản này?")) {
+            if (
+              window.confirm(
+                "Bạn có chắc chắn muốn xóa tất cả lịch sử trò chuyện của tài khoản này?",
+              )
+            ) {
               setConversations([]);
               setMessages([]);
               setActiveConversationId(null);
@@ -186,7 +202,6 @@ export default function ChatPage() {
           activeConversationId={activeConversationId}
           onSelectConversation={handleSelectConversation}
           isAuthenticated={isAuthenticated}
-          user={user ? { email: user.email, name: user.name } : null}
         />
 
         {/* Main Chat Area */}
@@ -198,7 +213,7 @@ export default function ChatPage() {
                 onClick={() => setSidebarOpen(true)}
                 className="lg:hidden text-slate-400 hover:text-white"
               >
-                <Settings className="w-5 h-5" />
+                <Menu className="w-5 h-5" />
               </button>
               <h1 className="text-white text-lg font-semibold">AI STOCK</h1>
             </div>

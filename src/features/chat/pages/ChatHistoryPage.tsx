@@ -11,6 +11,7 @@ import {
   Eye,
   X,
   Sparkles,
+  Menu,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { getMyAudios, type MyAudioResponse } from "../../../api/chat.api";
@@ -141,13 +142,20 @@ export default function ChatHistoryPage() {
           navigate("/chat");
         }}
         isAuthenticated={isAuthenticated}
-        user={user ? { email: user.email, name: user.name } : null}
       />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Header */}
         <div className="bg-slate-900/50 border-b border-slate-800 px-6 py-4 flex items-center gap-4">
+          <motion.button
+            onClick={() => setSidebarOpen(true)}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            className="lg:hidden text-slate-400 hover:text-white p-2 rounded-full hover:bg-slate-800 transition-colors"
+          >
+            <Menu className="w-5 h-5" />
+          </motion.button>
           <motion.button
             onClick={() => navigate("/chat")}
             whileHover={{ scale: 1.1 }}
