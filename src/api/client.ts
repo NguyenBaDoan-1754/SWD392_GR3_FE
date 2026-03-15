@@ -1,7 +1,8 @@
 import axios from "axios";
 import { clearAuthRelatedStorage } from "../lib/auth-session";
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_URL =
+  import.meta.env.VITE_API_BASE_URL || "https://swd392-gr3-be.onrender.com/";
 
 /**
  * Axios instance for API requests with auth interceptors
