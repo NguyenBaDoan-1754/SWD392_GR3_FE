@@ -107,7 +107,7 @@ export default function Sidebar() {
                 <button
                   onClick={() => {
                     logout();
-                    navigate("/login");
+                    navigate("/");
                     setShowProfileMenu(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-t border-slate-700"

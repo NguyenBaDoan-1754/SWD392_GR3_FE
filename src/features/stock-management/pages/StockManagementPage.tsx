@@ -1,5 +1,5 @@
-import Sidebar from "../../dashboard-admin/components/Sidebar";
 import StockManagementContent from "../components/StockManagementContent";
+import Sidebar from "../../dashboard-admin/components/Sidebar";
 
 export default function StockManagementPage() {
   return (

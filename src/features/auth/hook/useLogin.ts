@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { loginApi, getUserProfileApi } from "@/api/auth.api";
 import { setToken } from "@/lib/token";
 import { toast } from "sonner";
+import { clearAuthRelatedStorage } from "@/lib/auth-session";
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ export function useLogin() {
 
       // Save token
       if (data.token) {
+        clearAuthRelatedStorage();
         setToken(data.token);
       }
 
@@ -42,7 +44,7 @@ export function useLogin() {
         if (userProfile && userProfile.role === "ADMIN") {
           navigate("/dashboard");
         } else {
-          navigate("/chat");
+          navigate("/");
         }
       }, 500);
 

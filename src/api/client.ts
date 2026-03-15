@@ -1,6 +1,7 @@
 import axios from "axios";
+import { clearAuthRelatedStorage } from "../lib/auth-session";
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || "https://swd392-gr3-be.onrender.com";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 /**
  * Axios instance for API requests with auth interceptors
@@ -38,9 +39,13 @@ apiClient.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid - clear token and redirect to login
-      localStorage.removeItem("authToken");
-      window.location.href = "/login";
+      const hasToken = localStorage.getItem("authToken");
+      if (hasToken) {
+        // Token expired or invalid - clear token and redirect to login
+        clearAuthRelatedStorage();
+        localStorage.removeItem("authToken");
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error);
   },

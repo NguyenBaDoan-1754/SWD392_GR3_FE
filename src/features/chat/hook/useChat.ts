@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { sendChatMessage } from "../../../api/chat.api";
 
 interface Message {
@@ -6,36 +6,13 @@ interface Message {
   type: "user" | "assistant";
   content: string;
   timestamp: Date;
+  audioUrl?: string;
 }
 
-const STORAGE_KEY = "ai_stock_chat_messages";
-
-const loadMessagesFromStorage = (): Message[] => {
-  if (typeof window === "undefined") return [];
-
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    return parsed;
-  } catch {
-    return [];
-  }
-};
-
-export const useChat = () => {
-  const [messages, setMessages] = useState<Message[]>(() => loadMessagesFromStorage());
+export const useChat = (initialMessages: Message[] = []) => {
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
-    } catch {
-      // ignore
-    }
-  }, [messages]);
 
   const sendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -54,14 +31,19 @@ export const useChat = () => {
 
     try {
       const response = await sendChatMessage({ question: content });
-      console.log("API Response:", response);
 
-      // Add assistant message
+      const assistantText =
+        response.answerText?.trim() ||
+        response.answer?.trim() ||
+        response.response?.trim() ||
+        "Không có phản hồi từ hệ thống.";
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        content: response.response || JSON.stringify(response),
+        content: assistantText,
         timestamp: new Date(),
+        audioUrl: response.audioUrl,
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
@@ -78,11 +60,6 @@ export const useChat = () => {
   const clearMessages = () => {
     setMessages([]);
     setError(null);
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch {
-      // ignore
-    }
   };
 
   return {

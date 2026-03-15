@@ -4,13 +4,12 @@ import {
   X,
   MessageSquare,
   Trash2,
-  LogIn,
-  LogOut,
-  User,
   Pin,
+  History,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -26,8 +25,6 @@ interface SidebarProps {
   onSelectConversation?: (id: string) => void;
   isAuthenticated?: boolean;
   user?: { email: string; name?: string } | null;
-  onLogin?: () => void;
-  onLogout?: () => void;
 }
 
 export default function Sidebar({
@@ -40,9 +37,8 @@ export default function Sidebar({
   onSelectConversation,
   isAuthenticated = false,
   user = null,
-  onLogin,
-  onLogout,
 }: SidebarProps) {
+  const navigate = useNavigate();
   const [pinnedConversations, setPinnedConversations] = useState<Set<string>>(
     new Set(),
   );
@@ -63,8 +59,6 @@ export default function Sidebar({
     }
   }, []);
 
-  const displayName =
-    user?.name || localUser?.name || user?.email || localUser?.email || null;
 
   return (
     <>
@@ -78,7 +72,7 @@ export default function Sidebar({
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:relative w-64 h-screen bg-slate-900 border-r border-slate-800 transition-transform duration-300 z-50 lg:z-0 lg:translate-x-0 ${
+        className={`fixed lg:relative w-64 h-full bg-slate-900 border-r border-slate-800 transition-transform duration-300 z-50 lg:z-0 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -134,10 +128,10 @@ export default function Sidebar({
                               damping: 10,
                             }}
                             className={`p-3 rounded-lg cursor-pointer transition-colors flex items-start justify-between gap-2 ${
-                            activeConversationId === conv.id
-                              ? "bg-indigo-600"
-                              : "bg-slate-800/50 hover:bg-slate-700"
-                          }`}
+                              activeConversationId === conv.id
+                                ? "bg-indigo-600"
+                                : "bg-slate-800/50 hover:bg-slate-700"
+                            }`}
                           >
                             <div className="flex-1 min-w-0">
                               <p className="text-slate-200 text-sm truncate flex items-center gap-2">
@@ -244,44 +238,19 @@ export default function Sidebar({
               </button>
             )}
 
-            {/* User Info or Login Button */}
-            {isAuthenticated && user ? (
-              <>
-                <div className="bg-slate-800 rounded-lg p-3 flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
-                    <User className="w-4 h-4 text-white" />
-                  </div>
-                  {displayName ? (
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium truncate">
-                        {displayName}
-                      </p>
-                    </div>
-                  ) : null}
-                </div>
-                <motion.button
-                  onClick={onLogout}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  className="w-full text-slate-400 hover:text-red-400 text-sm py-2 hover:bg-slate-800 rounded transition-colors flex items-center justify-center gap-2"
-                >
-                  <LogOut className="w-4 h-4" />
-                  Logout
-                </motion.button>
-              </>
-            ) : (
+            {/* History Button */}
+            {isAuthenticated && (
               <motion.button
-                onClick={onLogin}
+                onClick={() => navigate("/history")}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full text-slate-300 hover:text-white bg-indigo-600/20 hover:bg-indigo-600 border border-indigo-500/30 hover:border-indigo-500 font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
-                <LogIn className="w-4 h-4" />
-                Sign in
+                <History className="w-4 h-4" />
+                Lịch Sử Của Tôi
               </motion.button>
             )}
+
           </div>
         </div>
       </div>
