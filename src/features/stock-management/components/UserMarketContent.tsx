@@ -195,24 +195,24 @@ export default function UserMarketContent() {
             <div className="max-w-3xl">
               <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-200">
                 <BarChart3 className="h-3.5 w-3.5" />
-                Theo doi thi truong
+                Theo dõi thị trường
               </div>
               <h1 className="text-3xl font-semibold tracking-tight text-white md:text-4xl">
                 Theo dõi giá cổ phiếu bằng biểu đồ nến theo từng phiên
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300 md:text-base">
-                Chon ma co phieu ban quan tam de xem dien bien gia trong ngay.
-                He thong se uu tien hien thi ngay giao dich gan nhat, mac dinh
-                xem ca phien sang va chieu, va ban co the bam vao tung cay nen
-                de xem thong tin chi tiet.
+                Chọn mã cổ phiếu bạn quan tâm để xem diễn biến giá trong ngày.
+                Hệ thống sẽ ưu tiên hiển thị ngày giao dịch gần nhất, mặc định
+                xem cả phiên sáng và chiều, và bạn có thể bấm vào từng cây nến
+                để xem thông tin chi tiết.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3 xl:min-w-[520px]">
               {[
-                "1. Chon ma co phieu ban quan tam",
-                "2. Xem nhanh ngay giao dich gan nhat",
-                "3. Bam nen de xem gia chi tiet",
+                "1. Chọn mã cổ phiếu bạn quan tâm",
+                "2. Xem nhanh ngày giao dịch gần nhất",
+                "3. Bấm nến để xem giá chi tiết",
               ].map((item) => (
                 <div
                   key={item}

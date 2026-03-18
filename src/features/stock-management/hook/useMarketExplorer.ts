@@ -239,7 +239,7 @@ export const useMarketExplorer = (): UseMarketExplorerReturn => {
         if (nearestData) {
           setSelectedDate(nearestData.date);
           setDateNotice(
-            `Ngay ${date} chua co du lieu. Da chuyen sang ngay gan nhat la ${nearestData.date}.`,
+            `Ngày ${date} chưa có dữ liệu. Đã chuyển sang ngày gần nhất là ${nearestData.date}.`,
           );
           commitChartData(symbol, nearestData.date, nearestData.items);
           return;
@@ -248,7 +248,7 @@ export const useMarketExplorer = (): UseMarketExplorerReturn => {
         setCandles([]);
         setSelectedCandleTime(null);
         lastLoadedKeyRef.current = "";
-        setDateNotice(`Ngay ${date} hien chua co du lieu giao dich.`);
+        setDateNotice(`Ngày ${date} hiện chưa có dữ liệu giao dịch.`);
         return;
       }
 
@@ -261,7 +261,7 @@ export const useMarketExplorer = (): UseMarketExplorerReturn => {
       setSelectedCandleTime(null);
       lastLoadedKeyRef.current = "";
       setDateNotice(null);
-      setError("Khong tai duoc du lieu bieu do nen.");
+      setError("Không tải được dữ liệu biểu đồ nến.");
     } finally {
       if (requestId === requestIdRef.current) {
         setLoadingChart(false);
@@ -301,12 +301,12 @@ export const useMarketExplorer = (): UseMarketExplorerReturn => {
 
       if (requestId !== requestIdRef.current) return;
 
-      setError(`Khong tim thay du lieu gan day cho ma ${symbol}.`);
+      setError(`Không tìm thấy dữ liệu gần đây cho mã ${symbol}.`);
     } catch (loadError) {
       if (requestId !== requestIdRef.current) return;
 
       console.error("Failed to discover latest trading date:", loadError);
-      setError("Khong the do ngay giao dich moi nhat tu API hien co.");
+      setError("Không thể dò ngày giao dịch mới nhất từ dữ liệu hiện có.");
     } finally {
       if (requestId === requestIdRef.current) {
         setLoadingBootstrap(false);
@@ -381,7 +381,7 @@ export const useMarketExplorer = (): UseMarketExplorerReturn => {
     () =>
       summarizeSession(
         "morning",
-        "Phien sang",
+        "Phiên sáng",
         candles.filter((candle) => candle.session === "morning"),
       ),
     [candles],
@@ -391,14 +391,14 @@ export const useMarketExplorer = (): UseMarketExplorerReturn => {
     () =>
       summarizeSession(
         "afternoon",
-        "Phien chieu",
+        "Phiên chiều",
         candles.filter((candle) => candle.session === "afternoon"),
       ),
     [candles],
   );
 
   const allDaySummary = useMemo(
-    () => summarizeSession("all", "Ca ngay", candles),
+    () => summarizeSession("all", "Cả ngày", candles),
     [candles],
   );
 
