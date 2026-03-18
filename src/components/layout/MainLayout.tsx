@@ -38,14 +38,11 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-200 overflow-hidden relative">
-      {/* Spacer to keep main content from going under the collapsed sidebar */}
-      <div className="w-20 flex-shrink-0 hidden sm:block z-0"></div>
-
-      {/* Global Sidebar (Hover expandable, floating) */}
+      {/* Global Sidebar (Hover expandable, in normal layout flow) */}
       <nav
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
-        className={`absolute top-0 left-0 bottom-0 ${isExpanded ? "w-64 shadow-2xl" : "w-20"} flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col py-6 transition-all duration-300 ease-in-out z-50`}
+        className={`relative ${isExpanded ? "w-64 shadow-2xl" : "w-20"} flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col py-6 transition-[width,box-shadow] duration-300 ease-in-out z-40`}
       >
         {/* Logo/Brand */}
         <Link
@@ -163,7 +160,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
         </div>
       </nav>
 
-      <main className="flex-1 overflow-hidden relative">
+      <main className="relative min-w-0 flex-1 overflow-hidden">
         <div className="h-full overflow-y-auto custom-scrollbar">
           {children}
         </div>
