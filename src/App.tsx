@@ -18,6 +18,7 @@ import NewsPage from "./features/articles/pages/NewsPage";
 import NotFoundPage from "./features/404/pages/NotFoundPage";
 import HomePage from "./features/home/pages/HomePage";
 import ProfilePage from "./features/profile/pages/ProfilePage";
+import PodcastPage from "./features/podcast/pages/PodcastPage";
 import { Toaster } from "./components/ui/sonner";
 import { useAuth } from "./features/auth/hook/useAuth";
 import { ProtectedRoute } from "./features/auth/components/ProtectedRoute";
@@ -47,6 +48,10 @@ function App() {
         <Route
           path="/profile"
           element={<ProtectedRoute element={<ProfilePage />} />}
+        />
+        <Route
+          path="/podcasts"
+          element={<ProtectedRoute element={<PodcastPage />} />}
         />
 
         {/* Routes accessible only by admin users */}
