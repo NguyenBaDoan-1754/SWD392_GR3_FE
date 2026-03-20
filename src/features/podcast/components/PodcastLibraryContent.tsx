@@ -312,10 +312,10 @@ export default function PodcastLibraryContent({
       setPodcasts(result.items);
       setCurrentPage(result.page);
       setTotalPages(result.totalPages);
-    } catch (requestError: any) {
+    } catch (requestError: unknown) {
       setPodcasts([]);
       setError(
-        requestError?.message ||
+        (requestError instanceof Error ? requestError.message : null) ||
           "Đã có lỗi xảy ra khi tải danh sách podcast.",
       );
     } finally {
@@ -350,6 +350,7 @@ export default function PodcastLibraryContent({
   useEffect(() => {
     setCurrentPage(0);
     void fetchPodcasts(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filterMode]);
 
   useEffect(() => {
@@ -398,6 +399,7 @@ export default function PodcastLibraryContent({
 
     pendingAutoPlayRef.current = false;
     void playSelectedAudio();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedEntry?.id]);
 
   return (
