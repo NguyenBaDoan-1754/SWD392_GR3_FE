@@ -8,7 +8,6 @@ import {
   Pause,
   Play,
   RefreshCw,
-  Search,
   Sparkles,
   Square,
   Volume2,
@@ -20,7 +19,6 @@ import {
 
 type PodcastAudience = "user" | "admin";
 type PodcastFilter = "all" | "morning" | "afternoon";
-type SpeechLanguage = "vi" | "en";
 
 interface PodcastLibraryContentProps {
   audience: PodcastAudience;
@@ -34,11 +32,6 @@ interface PodcastEntry extends PodcastLogItem {
   isoDate: string;
   hasAudio: boolean;
 }
-
-const languageOptions: Array<{ value: SpeechLanguage; label: string }> = [
-  { value: "vi", label: "Tiếng Việt" },
-  { value: "en", label: "English" },
-];
 
 function normalizeText(value?: string | null) {
   return value?.trim() || "";
@@ -196,47 +189,39 @@ function findNearestAvailableDate(targetDate: string, items: PodcastEntry[]) {
   return bestDate;
 }
 
-async function fetchAllPodcastLogs(session?: string) {
-  const collected: PodcastLogItem[] = [];
-  const pageSize = 100;
-  let currentPage = 0;
-  let totalPages = 1;
+async function fetchSinglePagePodcasts(session?: string, page = 0) {
+  const response = await getPodcastLogs({
+    session,
+    page,
+  });
 
-  while (currentPage < totalPages) {
-    const response = await getPodcastLogs({
-      session,
-      page: currentPage,
-      size: pageSize,
-    });
-
-    if (
-      response.code !== 200 ||
-      !response.result ||
-      !Array.isArray(response.result.podcastLogs)
-    ) {
-      throw new Error(response.message || "Không thể tải danh sách podcast.");
-    }
-
-    collected.push(...response.result.podcastLogs);
-    totalPages = Math.max(response.result.totalPages || 1, 1);
-    currentPage += 1;
+  if (
+    response.code !== 200 ||
+    !response.result ||
+    !Array.isArray(response.result.podcastLogs)
+  ) {
+    throw new Error(response.message || "Không thể tải danh sách podcast.");
   }
 
-  return collected;
+  return {
+    items: response.result.podcastLogs,
+    page: response.result.page,
+    totalPages: Math.max(response.result.totalPages || 1, 1),
+  };
 }
 
 export default function PodcastLibraryContent({
   audience,
 }: PodcastLibraryContentProps) {
+  const dateInputRef = useRef<HTMLInputElement | null>(null);
   const [podcasts, setPodcasts] = useState<PodcastLogItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [filterMode, setFilterMode] = useState<PodcastFilter>("all");
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [dateFilter, setDateFilter] = useState("");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [speechLanguage, setSpeechLanguage] =
-    useState<SpeechLanguage>("vi");
+  const [filterMode, setFilterMode] = useState<PodcastFilter>("all");
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [playerError, setPlayerError] = useState<string | null>(null);
 
@@ -255,31 +240,16 @@ export default function PodcastLibraryContent({
   }, [dateFilter, entries]);
 
   const filteredEntries = useMemo(() => {
-    const keyword = searchKeyword.trim().toLowerCase();
-
     return entries.filter((entry) => {
       const matchesDate = !dateFilter || entry.isoDate === dateFilter;
-      const matchesKeyword =
-        !keyword ||
-        entry.title.toLowerCase().includes(keyword) ||
-        entry.subtitle.toLowerCase().includes(keyword) ||
-        normalizeText(entry.session).toLowerCase().includes(keyword) ||
-        normalizeText(entry.status).toLowerCase().includes(keyword) ||
-        entry.createdDateLabel.toLowerCase().includes(keyword) ||
-        entry.isoDate.toLowerCase().includes(keyword);
-
-      return matchesDate && matchesKeyword;
+      return matchesDate;
     });
-  }, [dateFilter, entries, searchKeyword]);
+  }, [dateFilter, entries]);
 
   const selectedEntry =
     filteredEntries.find((entry) => entry.id === selectedId) ||
     entries.find((entry) => entry.id === selectedId) ||
     null;
-
-  const selectedLanguageLabel =
-    languageOptions.find((item) => item.value === speechLanguage)?.label ||
-    "Tiếng Việt";
 
   const dateNotice = useMemo(() => {
     if (!dateFilter) {
@@ -317,13 +287,6 @@ export default function PodcastLibraryContent({
       return;
     }
 
-    if (speechLanguage === "en") {
-      setPlayerError(
-        "Podcast hiện chỉ có bản ghi âm tiếng Việt để phát trực tiếp.",
-      );
-      return;
-    }
-
     try {
       setPlayerError(null);
       await audioRef.current.play();
@@ -334,18 +297,21 @@ export default function PodcastLibraryContent({
     }
   };
 
-  const fetchPodcasts = async () => {
+  const fetchPodcasts = async (page = 0) => {
     try {
       setIsLoading(true);
       setError(null);
       setPlayerError(null);
       stopPlayback();
 
-      const fetchedPodcasts = await fetchAllPodcastLogs(
+      const result = await fetchSinglePagePodcasts(
         filterMode === "all" ? undefined : filterMode,
+        page,
       );
 
-      setPodcasts(fetchedPodcasts);
+      setPodcasts(result.items);
+      setCurrentPage(result.page);
+      setTotalPages(result.totalPages);
     } catch (requestError: any) {
       setPodcasts([]);
       setError(
@@ -360,7 +326,7 @@ export default function PodcastLibraryContent({
   const handleSelectEntry = (entry: PodcastEntry) => {
     setSelectedId(entry.id);
     setPlayerError(null);
-    pendingAutoPlayRef.current = speechLanguage === "vi";
+    pendingAutoPlayRef.current = true;
   };
 
   const handlePlayback = () => {
@@ -373,13 +339,6 @@ export default function PodcastLibraryContent({
       return;
     }
 
-    if (speechLanguage === "en") {
-      setPlayerError(
-        "Podcast hiện chỉ có bản ghi âm tiếng Việt để phát trực tiếp.",
-      );
-      return;
-    }
-
     if (audioRef.current.paused) {
       void playSelectedAudio();
       return;
@@ -389,7 +348,8 @@ export default function PodcastLibraryContent({
   };
 
   useEffect(() => {
-    void fetchPodcasts();
+    setCurrentPage(0);
+    void fetchPodcasts(0);
   }, [filterMode]);
 
   useEffect(() => {
@@ -438,18 +398,19 @@ export default function PodcastLibraryContent({
 
     pendingAutoPlayRef.current = false;
     void playSelectedAudio();
-  }, [selectedEntry?.id, speechLanguage]);
-
-  useEffect(() => {
-    setPlayerError(null);
-
-    if (speechLanguage === "en") {
-      stopPlayback();
-    }
-  }, [speechLanguage]);
+  }, [selectedEntry?.id]);
 
   return (
     <section className="min-h-full bg-slate-950 text-slate-100">
+      <style>{`
+        input[type="date"]::-webkit-calendar-picker-indicator {
+          cursor: pointer;
+          border-radius: 4px;
+          margin-right: 2px;
+          opacity: 0;
+          pointer-events: none;
+        }
+      `}</style>
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-6 py-8 lg:px-10 lg:py-10">
         <div className="rounded-[32px] border border-slate-800 bg-[radial-gradient(circle_at_top_left,_rgba(99,102,241,0.18),_transparent_35%),linear-gradient(180deg,_rgba(15,23,42,0.96),_rgba(2,6,23,0.96))] p-7">
           <span className="inline-flex items-center gap-2 rounded-full border border-indigo-500/35 bg-indigo-500/10 px-4 py-1.5 text-sm font-semibold text-indigo-100">
@@ -486,35 +447,55 @@ export default function PodcastLibraryContent({
 
         <div className="grid gap-6 xl:grid-cols-[1.05fr,0.95fr]">
           <div className="rounded-[28px] border border-slate-800 bg-slate-900/65 p-6">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center">
-              <div className="relative flex-1">
-                <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
-                <input
-                  value={searchKeyword}
-                  onChange={(event) => setSearchKeyword(event.target.value)}
-                  placeholder="Tìm theo ngày, phiên hoặc trạng thái..."
-                  className="h-14 w-full rounded-2xl border border-slate-700 bg-slate-950/80 pl-12 pr-4 text-base text-white outline-none focus:border-indigo-400"
-                />
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-wrap gap-3">
+                {[
+                  { value: "all" as PodcastFilter, label: "Tất cả" },
+                  { value: "morning" as PodcastFilter, label: "Phiên sáng" },
+                  { value: "afternoon" as PodcastFilter, label: "Phiên chiều" },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setFilterMode(option.value)}
+                    className={`rounded-2xl border px-4 py-3 text-sm font-semibold ${
+                      filterMode === option.value
+                        ? "border-indigo-500 bg-indigo-500/15 text-white"
+                        : "border-slate-700 bg-slate-950/50 text-slate-300 hover:border-slate-500"
+                    }`}
+                  >
+                    {option.label}
+                  </button>
+                ))}
               </div>
 
-              <div className="relative min-w-[220px]">
-                <CalendarDays className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                <div className="relative min-w-[220px]">
                 <input
+                  ref={dateInputRef}
                   type="date"
                   value={dateFilter}
                   onChange={(event) => setDateFilter(event.target.value)}
-                  className="h-14 w-full rounded-2xl border border-slate-700 bg-slate-950/80 pl-11 pr-4 text-base text-white outline-none focus:border-indigo-400"
+                  className="h-14 w-full rounded-2xl border border-slate-700 bg-slate-950/80 pl-11 pr-4 text-base text-white outline-none cursor-pointer transition-colors duration-200 hover:border-slate-600 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/30 placeholder-slate-500"
+                  style={{
+                    colorScheme: 'dark',
+                  }}
+                />
+                <CalendarDays
+                  className="pointer-events-auto absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 hover:text-slate-300 transition-colors cursor-pointer"
+                  onClick={() => dateInputRef.current?.showPicker?.()}
                 />
               </div>
 
               <button
                 type="button"
-                onClick={() => void fetchPodcasts()}
+                onClick={() => void fetchPodcasts(currentPage)}
                 className="inline-flex h-14 items-center justify-center gap-2 rounded-2xl border border-slate-700 bg-slate-950/80 px-5 text-sm font-semibold text-slate-100 hover:border-indigo-400"
               >
                 <RefreshCw className="h-4 w-4" />
                 Làm mới
               </button>
+              </div>
             </div>
 
             {dateNotice && (
@@ -531,27 +512,6 @@ export default function PodcastLibraryContent({
                 )}
               </div>
             )}
-
-            <div className="mt-4 flex flex-wrap gap-3">
-              {[
-                { value: "all" as PodcastFilter, label: "Tất cả" },
-                { value: "morning" as PodcastFilter, label: "Phiên sáng" },
-                { value: "afternoon" as PodcastFilter, label: "Phiên chiều" },
-              ].map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setFilterMode(option.value)}
-                  className={`rounded-2xl border px-4 py-3 text-sm font-semibold ${
-                    filterMode === option.value
-                      ? "border-indigo-500 bg-indigo-500/15 text-white"
-                      : "border-slate-700 bg-slate-950/50 text-slate-300 hover:border-slate-500"
-                  }`}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
 
             <div className="mt-6 rounded-3xl border border-slate-800 bg-slate-950/45 p-3">
               {isLoading ? (
@@ -610,6 +570,32 @@ export default function PodcastLibraryContent({
                   ))}
                 </div>
               )}
+
+            {filteredEntries.length > 0 && (
+              <div className="mt-6 flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-950/50 p-4">
+                <p className="text-sm text-slate-400">
+                  Trang {currentPage + 1} trong {totalPages}
+                </p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void fetchPodcasts(Math.max(0, currentPage - 1))}
+                    disabled={currentPage === 0 || isLoading}
+                    className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-300 hover:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    ← Trước
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void fetchPodcasts(currentPage + 1)}
+                    disabled={currentPage >= totalPages - 1 || isLoading}
+                    className="rounded-lg border border-slate-700 bg-slate-900 px-3 py-2 text-sm font-semibold text-slate-300 hover:border-slate-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    Sau →
+                  </button>
+                </div>
+              </div>
+            )}
             </div>
           </div>
 
@@ -628,9 +614,6 @@ export default function PodcastLibraryContent({
                     <span className="rounded-full border border-slate-700 px-3 py-1 text-xs uppercase tracking-[0.18em] text-slate-300">
                       {selectedEntry.createdDateLabel}
                     </span>
-                    <span className="rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-200">
-                      {selectedLanguageLabel}
-                    </span>
                     <span className="rounded-full border border-slate-700 bg-slate-900 px-3 py-1 text-xs font-semibold text-slate-300">
                       {isSpeaking ? "Đang phát" : "Sẵn sàng phát"}
                     </span>
@@ -642,29 +625,6 @@ export default function PodcastLibraryContent({
                   <p className="mt-3 text-sm leading-7 text-slate-300">
                     {selectedEntry.subtitle}
                   </p>
-                </div>
-
-                <div className="rounded-[24px] border border-slate-800 bg-slate-950/55 p-5">
-                  <p className="text-sm uppercase tracking-[0.24em] text-slate-400">
-                    Ngôn ngữ đọc
-                  </p>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {languageOptions.map((option) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setSpeechLanguage(option.value)}
-                        className={`rounded-2xl border px-4 py-2 text-sm font-semibold ${
-                          speechLanguage === option.value
-                            ? "border-indigo-500 bg-indigo-500/15 text-white"
-                            : "border-slate-700 bg-slate-900 text-slate-300 hover:border-slate-500"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    ))}
-                  </div>
                 </div>
 
                 <div className="rounded-[24px] border border-slate-800 bg-slate-950/55 p-5">
