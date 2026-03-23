@@ -22,6 +22,16 @@ export interface StockPricesResponse {
   };
 }
 
+export interface StockResponse {
+  tickerSymbol: string;
+}
+
+export interface StockListResponse {
+  code: number;
+  message: string;
+  result: StockResponse[];
+}
+
 export const getStockPrices = async (
   page: number = 1,
   tickerSymbol?: string,
@@ -69,6 +79,25 @@ export const getStockPrices = async (
     };
   } catch (error) {
     console.error("Error fetching stock prices:", error);
+    throw error;
+  }
+};
+
+export const getListStock = async (): Promise<string[]> => {
+  try {
+    const response = await apiClient.get<StockListResponse>(
+      "/api/stock/all",
+    );
+
+    const stocks = response.data?.result;
+
+    if (!stocks || !Array.isArray(stocks)) {
+      return [];
+    }
+
+    return stocks.map((stock) => stock.tickerSymbol);
+  } catch (error) {
+    console.error("Error fetching stock list:", error);
     throw error;
   }
 };

@@ -3,10 +3,9 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   BarChart3,
-  CalendarDays,
+  ChevronDown,
   Clock3,
   RefreshCw,
-  Search,
   Sunrise,
   Sunset,
 } from "lucide-react";
@@ -238,65 +237,45 @@ export default function UserMarketContent() {
               </span>
               <div className="flex flex-col gap-3 xl:flex-row">
                 <div className="relative flex-1">
-                  <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                  <input
-                    value={symbolInput}
-                    onChange={(event) => setSymbolInput(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") {
-                        applySymbol();
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+                  <select
+                    value={selectedSymbol}
+                    onChange={(event) => {
+                      if (event.target.value) {
+                        pickQuickSymbol(event.target.value);
                       }
                     }}
-                    placeholder="Ví dụ: FPT, HPG, VCB..."
-                    className="h-14 w-full rounded-2xl border border-slate-700 bg-slate-950/70 pl-11 pr-4 text-sm uppercase text-white outline-none transition focus:border-indigo-400"
-                  />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={applySymbol}
-                  className="inline-flex h-14 items-center justify-center rounded-2xl border border-indigo-400/40 bg-indigo-500/12 px-5 text-sm font-medium text-indigo-100 transition hover:border-indigo-300 hover:bg-indigo-500/18"
-                >
-                  Chọn mã
-                </button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {quickSymbols.map((symbol) => (
-                  <button
-                    key={symbol}
-                    type="button"
-                    onClick={() => pickQuickSymbol(symbol)}
-                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                      selectedSymbol === symbol
-                        ? "border-indigo-400/50 bg-indigo-500/12 text-indigo-100"
-                        : "border-slate-800 bg-slate-950/55 text-slate-300 hover:border-slate-700"
-                    }`}
+                    className="h-14 w-full rounded-2xl border border-slate-700 bg-slate-950/70 pr-11 pl-4 text-sm text-white outline-none transition focus:border-indigo-400 appearance-none cursor-pointer"
                   >
-                    {symbol}
-                  </button>
-                ))}
+                    <option value="">Chọn mã cổ phiếu từ danh sách</option>
+                    {quickSymbols.map((symbol) => (
+                      <option key={symbol} value={symbol}>
+                        {symbol}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
 
               <span className="text-xs text-slate-500">
                 {selectedSymbol
-                  ? `Đang xem mã ${selectedSymbol}. Có thể nhập mã khác rồi bấm Chọn mã.`
-                  : "Bạn có thể bấm nhanh một mã gợi ý hoặc tự nhập mã chứng khoán."}
+                  ? `Đang xem mã ${selectedSymbol}. Có thể chọn mã khác từ dropdown hoặc tự nhập.`
+                  : "Chọn mã từ dropdown hoặc tự nhập mã chứng khoán."}
               </span>
             </label>
 
             <label className="flex flex-col gap-2">
               <span className="text-sm font-medium text-slate-200">Ngày</span>
-              <div className="relative">
-                <CalendarDays className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                <input
-                  type="date"
-                  value={selectedDate}
-                  onChange={(event) => setSelectedDate(event.target.value)}
-                  disabled={!hasSelection}
-                  className="h-14 w-full rounded-2xl border border-slate-700 bg-slate-950/70 pl-11 pr-4 text-sm text-white outline-none transition disabled:cursor-not-allowed disabled:opacity-60 focus:border-indigo-400"
-                />
-              </div>
+              <input
+                type="date"
+                value={selectedDate}
+                onChange={(event) => setSelectedDate(event.target.value)}
+                disabled={!hasSelection}
+                className="h-14 rounded-2xl border border-slate-700 bg-slate-950/70 px-4 text-sm text-slate-100 outline-none transition disabled:cursor-not-allowed disabled:opacity-60 focus:border-indigo-400"
+                style={{
+                  colorScheme: 'dark',
+                }}
+              />
               <span className="text-xs text-slate-500">
                 {loadingBootstrap
                   ? "Đang dò ngày giao dịch mới nhất từ API chart..."

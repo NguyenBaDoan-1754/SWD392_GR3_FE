@@ -4,6 +4,7 @@ import {
   type MarketSession,
   type StockIntradayCandle,
 } from "../../../api/market.api";
+import { getListStock } from "../../../api/stockPrice.api";
 
 type TradingSession = Exclude<MarketSession, "all">;
 
@@ -154,6 +155,9 @@ export const useMarketExplorer = (): UseMarketExplorerReturn => {
   const [loadingBootstrap, setLoadingBootstrap] = useState(false);
   const [loadingChart, setLoadingChart] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [quickSymbols, setQuickSymbols] = useState<string[]>(
+    POPULAR_STOCK_SYMBOLS,
+  );
 
   const requestIdRef = useRef(0);
   const lastLoadedKeyRef = useRef("");
@@ -162,6 +166,23 @@ export const useMarketExplorer = (): UseMarketExplorerReturn => {
   const setSymbolInput = (value: string) => {
     setSymbolInputState(normalizeSymbol(value));
   };
+
+  // Fetch all stocks from API on mount
+  useEffect(() => {
+    const fetchStocks = async () => {
+      try {
+        const stocks = await getListStock();
+        if (stocks && stocks.length > 0) {
+          setQuickSymbols(stocks);
+        }
+      } catch (err) {
+        console.error("Failed to fetch stocks from API:", err);
+        // Keep using default POPULAR_STOCK_SYMBOLS as fallback
+      }
+    };
+
+    void fetchStocks();
+  }, []);
 
   const hydrateCandles = (items: StockIntradayCandle[]) =>
     items.map((item) => {
@@ -442,7 +463,7 @@ export const useMarketExplorer = (): UseMarketExplorerReturn => {
 
   return {
     symbolInput,
-    quickSymbols: POPULAR_STOCK_SYMBOLS,
+    quickSymbols,
     selectedSymbol,
     selectedDate,
     dateNotice,
