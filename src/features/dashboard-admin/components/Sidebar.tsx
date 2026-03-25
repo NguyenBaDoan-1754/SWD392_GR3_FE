@@ -8,6 +8,7 @@ import {
   Activity,
   TrendingUp,
   FileText,
+  Headphones,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUserProfile } from "../hook/useUserProfile";
@@ -25,6 +26,7 @@ export default function Sidebar() {
     { icon: BarChart3, label: "Dashboard", href: "/dashboard" },
     { icon: FileText, label: "Articles & Mentions", href: "/articles" },
     { icon: TrendingUp, label: "Stock Management", href: "/stocks" },
+    { icon: Headphones, label: "Podcasts", href: "/podcasts" },
     { icon: Activity, label: "Background Jobs", href: "/background-jobs" },
     { icon: Users, label: "Users", href: "/users" },
     { icon: Settings, label: "Settings", href: "/settings" },

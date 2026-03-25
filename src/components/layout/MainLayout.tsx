@@ -1,18 +1,17 @@
 import { useState, type ReactNode } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
+  Headphones,
   Home,
-  MessageSquare,
-  LogOut,
   LogIn,
-  User,
-  TrendingUp,
+  LogOut,
+  MessageSquare,
   Newspaper,
+  TrendingUp,
+  User,
 } from "lucide-react";
 import { useAuth } from "../../features/auth/hook/useAuth";
 import { useUserProfile } from "../../features/dashboard-admin/hook/useUserProfile";
-
-import { useNavigate } from "react-router-dom";
 
 interface MainLayoutProps {
   children: ReactNode;
@@ -30,119 +29,123 @@ export default function MainLayout({ children }: MainLayoutProps) {
     navigate("/");
   };
 
-  // Ưu tiên dùng userProfile từ API, nếu chưa có thì dùng authUser từ token
   const displayUser = userProfile || {
     name: authUser?.name || "Người dùng",
     email: authUser?.email || "Profile",
   };
 
-  return (
-    <div className="flex h-screen bg-slate-950 text-slate-200 overflow-hidden relative">
-      {/* Spacer to keep main content from going under the collapsed sidebar */}
-      <div className="w-20 flex-shrink-0 hidden sm:block z-0"></div>
+  const navItems = [
+    {
+      href: "/",
+      label: "Trang chủ",
+      icon: Home,
+      isActive: pathname === "/",
+    },
+    {
+      href: "/chat",
+      label: "Tin nhắn",
+      icon: MessageSquare,
+      isActive: pathname.startsWith("/chat"),
+    },
+    {
+      href: "/market",
+      label: "Thị trường",
+      icon: TrendingUp,
+      isActive: pathname.startsWith("/market"),
+    },
+    {
+      href: "/podcasts",
+      label: "Podcast",
+      icon: Headphones,
+      isActive: pathname.startsWith("/podcasts"),
+    },
+    {
+      href: "/news",
+      label: "Tin tức",
+      icon: Newspaper,
+      isActive: pathname.startsWith("/news"),
+    },
+  ];
 
-      {/* Global Sidebar (Hover expandable, floating) */}
+  return (
+    <div className="relative flex h-screen overflow-hidden bg-slate-950 text-slate-200">
       <nav
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
-        className={`absolute top-0 left-0 bottom-0 ${isExpanded ? "w-64 shadow-2xl" : "w-20"} flex-shrink-0 bg-slate-900 border-r border-slate-800 flex flex-col py-6 transition-all duration-300 ease-in-out z-50`}
+        className={`relative ${isExpanded ? "w-64 shadow-2xl" : "w-20"} z-40 flex flex-shrink-0 flex-col border-r border-slate-800 bg-slate-900 py-6 transition-[width,box-shadow] duration-300 ease-in-out`}
       >
-        {/* Logo/Brand */}
         <Link
           to="/"
-          className={`flex items-center gap-3 mb-8 ${isExpanded ? "px-6" : "px-0 justify-center"} group`}
+          className={`group mb-8 flex items-center gap-3 ${
+            isExpanded ? "px-6" : "justify-center px-0"
+          }`}
         >
-          <div className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center font-bold text-lg group-hover:bg-indigo-500 transition-colors shadow-lg shadow-indigo-600/20 flex-shrink-0">
+          <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-lg font-bold text-white shadow-lg shadow-indigo-600/20 transition-colors group-hover:bg-indigo-500">
             S
           </div>
           {isExpanded && (
-            <span className="font-bold text-lg text-white tracking-wide whitespace-nowrap overflow-hidden">
+            <span className="overflow-hidden whitespace-nowrap text-lg font-bold tracking-wide text-white">
               StockAgent
             </span>
           )}
         </Link>
 
-        {/* Main Navigation */}
-        <div className="flex-1 flex flex-col gap-2 px-3">
-          <Link
-            to="/"
-            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
-              pathname === "/"
-                ? "bg-slate-800 text-white shadow-sm font-medium"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-            } ${!isExpanded && "justify-center"}`}
-            title="Trang Chủ"
-          >
-            <Home className="w-5 h-5 flex-shrink-0" />
-            {isExpanded && <span>Trang Chủ</span>}
-          </Link>
-          <Link
-            to="/chat"
-            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
-              pathname.startsWith("/chat")
-                ? "bg-slate-800 text-white shadow-sm font-medium"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-            } ${!isExpanded && "justify-center"}`}
-            title="Tin Nhắn"
-          >
-            <MessageSquare className="w-5 h-5 flex-shrink-0" />
-            {isExpanded && <span>Tin Nhắn</span>}
-          </Link>
-          <Link
-            to="/market"
-            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
-              pathname.startsWith("/market")
-                ? "bg-slate-800 text-white shadow-sm font-medium"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-            } ${!isExpanded && "justify-center"}`}
-            title="Thị Trường"
-          >
-            <TrendingUp className="w-5 h-5 flex-shrink-0" />
-            {isExpanded && <span>Thị Trường</span>}
-          </Link>
-          <Link
-            to="/news"
-            className={`flex items-center gap-3 px-3 py-3 rounded-xl transition-all ${
-              pathname.startsWith("/news")
-                ? "bg-slate-800 text-white shadow-sm font-medium"
-                : "text-slate-400 hover:text-white hover:bg-slate-800/50"
-            } ${!isExpanded && "justify-center"}`}
-            title="Tin Tức"
-          >
-            <Newspaper className="w-5 h-5 flex-shrink-0" />
-            {isExpanded && <span>Tin Tức</span>}
-          </Link>
+        <div className="flex flex-1 flex-col gap-2 px-3">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                title={item.label}
+                className={`flex items-center gap-3 rounded-xl px-3 py-3 transition-all ${
+                  item.isActive
+                    ? "bg-slate-800 font-medium text-white shadow-sm"
+                    : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
+                } ${!isExpanded ? "justify-center" : ""}`}
+              >
+                <Icon className="h-5 w-5 flex-shrink-0" />
+                {isExpanded && <span>{item.label}</span>}
+              </Link>
+            );
+          })}
         </div>
 
-        {/* Auth Section at the bottom of sidebar */}
-        <div className="mt-auto px-3 pt-6 border-t border-slate-800/50">
+        <div className="mt-auto border-t border-slate-800/50 px-3 pt-6">
           {isAuthenticated ? (
             <div className="flex flex-col gap-2">
               <Link
                 to="/profile"
-                className={`flex items-center gap-3 py-3 rounded-xl hover:bg-slate-800 transition-colors ${isExpanded ? "px-3" : "justify-center"}`}
                 title={displayUser?.name || "Profile"}
+                className={`flex items-center gap-3 rounded-xl py-3 transition-colors hover:bg-slate-800 ${
+                  isExpanded ? "px-3" : "justify-center"
+                }`}
               >
-                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 flex items-center justify-center flex-shrink-0 ring-2 ring-indigo-500/20">
-                  <User className="w-4 h-4 text-white" />
+                <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-indigo-600 to-violet-600 ring-2 ring-indigo-500/20">
+                  <User className="h-4 w-4 text-white" />
                 </div>
                 {isExpanded && (
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-semibold text-slate-200 truncate">
+                  <div className="min-w-0 flex flex-col">
+                    <span className="truncate text-sm font-semibold text-slate-200">
                       {displayUser?.name}
                     </span>
-                    <span className="text-xs text-slate-500 truncate">
+                    <span className="truncate text-xs text-slate-500">
                       {displayUser?.email}
                     </span>
                   </div>
                 )}
               </Link>
+
               <button
+                type="button"
                 onClick={handleLogout}
-                className={`flex items-center gap-3 py-3 rounded-xl text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 transition-all ${isExpanded ? "px-4" : "justify-center"}`}
                 title="Đăng xuất"
+                className={`flex items-center gap-3 rounded-xl py-3 text-slate-400 transition-all hover:bg-rose-500/10 hover:text-rose-400 ${
+                  isExpanded ? "px-4" : "justify-center"
+                }`}
               >
-                <LogOut className="w-5 h-5 flex-shrink-0" />
+                <LogOut className="h-5 w-5 flex-shrink-0" />
                 {isExpanded && (
                   <span className="text-sm font-medium">Đăng xuất</span>
                 )}
@@ -151,22 +154,20 @@ export default function MainLayout({ children }: MainLayoutProps) {
           ) : (
             <Link
               to="/login"
-              className={`flex items-center gap-3 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white transition-all shadow-lg shadow-indigo-600/20 ${isExpanded ? "px-4" : "justify-center mx-1"}`}
-              title="Đăng Nhập"
+              title="Đăng nhập"
+              className={`flex items-center gap-3 rounded-xl bg-indigo-600 py-3 text-white shadow-lg shadow-indigo-600/20 transition-all hover:bg-indigo-500 ${
+                isExpanded ? "px-4" : "mx-1 justify-center"
+              }`}
             >
-              <LogIn className="w-5 h-5 flex-shrink-0" />
-              {isExpanded && (
-                <span className="text-sm font-bold">Đăng Nhập</span>
-              )}
+              <LogIn className="h-5 w-5 flex-shrink-0" />
+              {isExpanded && <span className="text-sm font-bold">Đăng nhập</span>}
             </Link>
           )}
         </div>
       </nav>
 
-      <main className="flex-1 overflow-hidden relative">
-        <div className="h-full overflow-y-auto custom-scrollbar">
-          {children}
-        </div>
+      <main className="relative min-w-0 flex-1 overflow-hidden">
+        <div className="custom-scrollbar h-full overflow-y-auto">{children}</div>
       </main>
     </div>
   );
