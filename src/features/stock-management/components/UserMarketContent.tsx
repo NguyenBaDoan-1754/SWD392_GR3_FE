@@ -145,7 +145,6 @@ function SessionSummaryCard({ summary, active, onClick }: SummaryCardProps) {
 
 export default function UserMarketContent() {
   const {
-    symbolInput,
     quickSymbols,
     selectedSymbol,
     selectedDate,
@@ -160,8 +159,6 @@ export default function UserMarketContent() {
     morningSummary,
     afternoonSummary,
     allDaySummary,
-    setSymbolInput,
-    applySymbol,
     pickQuickSymbol,
     setSelectedDate,
     setSelectedSession,
